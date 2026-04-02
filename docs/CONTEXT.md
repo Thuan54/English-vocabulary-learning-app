@@ -7,9 +7,7 @@
 # Hard Constraints
 - No auth / multi-user
 - No cloud / online dependency
-- No ORM, raw SQL only (MS SQL Server + `mssql`)
 - Architecture: Client → Route → Service → Repository → SQL
-- AI cannot handle scheduling, system logic, or core DB operations
 
 # Core Features
 - Vocabulary lookup (word, meaning, example, search_count)
@@ -23,6 +21,4 @@
 
 # Testing Expectations
 - Jest, ≥70% coverage
-- Repository tests use real test DB
 - Services and routes tested
-- No skipping tests

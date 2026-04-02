@@ -11,8 +11,6 @@
 - Jest, ≥70% coverage
 - Unit: services, DTOs, hooks
 - Integration: route ↔ service, service ↔ repo
-- Repository: real SQL queries
-- Test DB: `vocabulary_test`, separate from dev/prod
 
 # Pull Requests
 - Small & focused

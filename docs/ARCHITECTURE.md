@@ -1,34 +1,37 @@
-# ARCHITECTURE.md
-
-## Stack
+# Stack
 - Backend: Node.js + Express + TypeScript
 - Frontend: React + Vite + TypeScript
-- DB: MS SQL Server, raw SQL only
-- Testing: Jest (backend + frontend)
+- DB: MongoDB (native driver, no ORM)
+- Testing: Jest
 
-## Project Structure
+# Project Structure
 
 ```
 server/src/
 ├── config/db.ts
 ├── modules/{feature}/
-│ ├── {feature}.route.ts
-│ ├── {feature}.service.ts
-│ ├── {feature}.repository.ts
-│ └── {feature}.dto.ts
+│   ├── {feature}.route.ts
+│   ├── {feature}.service.ts
+│   ├── {feature}.repository.ts
+│   ├── {feature}.dto.ts
+│   └── __tests__/
+│       ├── {feature}.service.test.ts
+│       ├── {feature}.repository.test.ts
+│       └── {feature}.route.test.ts
+
 client/src/
 ├── pages/{Feature}Page.tsx
 ├── components/
 ├── api/{feature}.api.ts
-
+├── __tests__/
 ```
 
-## Layer Responsibilities
+# Layer Responsibilities
 | Layer       | Responsibility                          |
 |------------|------------------------------------------|
 | Route       | HTTP request/response only               |
 | Service     | Business logic, validation, SRS logic    |
-| Repository  | Raw SQL queries ONLY                     |
+| Repository  | Mongo queries ONLY                     |
 
-## Flow Example
+# Flow Example
 POST /review → review.route.ts → review.service.ts → review.repository.ts → DB
