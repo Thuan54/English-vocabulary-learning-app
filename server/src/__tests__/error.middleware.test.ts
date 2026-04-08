@@ -2,7 +2,7 @@ import request from 'supertest';
 import express, { Request, Response } from 'express';
 import { errorHandler } from '../middleware/error.middleware';
 import { AppError } from '../middleware/error';
-import { asyncHandler } from '../middleware/async-handler';
+import { asyncHandler } from '../middleware/error';
 
 const app = express();
 app.use(express.json());
