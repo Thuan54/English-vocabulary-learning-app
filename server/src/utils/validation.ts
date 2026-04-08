@@ -32,6 +32,7 @@ export function normalizeWord(word: string): string {
 export function sanitizeInput(input: string): string {
   return input
     .replace(/[&<>"']/g, (m) => {
+      //Avoid HTML injection and XSS attack
       const map: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
       return map[m];
     })
