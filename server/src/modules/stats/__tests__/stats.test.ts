@@ -11,14 +11,13 @@ const app = express();
 app.use(express.json());
 app.use(requestLogger); // Logs appear for requests
 
-app.use(errorHandler);
-
 beforeAll(async () => {
   await startTestDB();
   // Wire real dependencies using test DB
   const repo = new StatsRepository(testDb!);
   const service = new StatsService(repo);
   app.use('/api/stats', createStatsRouter(service));
+  app.use(errorHandler);
 });
 beforeEach(async () => await clearTestDB());
 afterAll(async () => await stopTestDB());
