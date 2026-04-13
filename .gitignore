@@ -1,4 +1,6 @@
 node_modules/
+coverage/
+SCHEMA.md
 .env
 dist/
 # Logs
