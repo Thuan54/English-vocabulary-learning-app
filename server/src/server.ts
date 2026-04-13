@@ -5,6 +5,8 @@ import {errorHandler} from "./middleware/error.middleware"
 import { createStatsRouter} from './modules/stats/stats.route';
 import { StatsService} from './modules/stats/stats.service';
 import { StatsRepository} from './modules/stats/stats.repo';
+import { createAiRouter } from './modules/ai/ai.route';
+import { AiService } from './modules/ai/ai.service';
 
 
 dotenv.config();
@@ -30,6 +32,10 @@ export const startServer = async () => {
   const statsRepo = new StatsRepository(db);
   const statsService = new StatsService(statsRepo);
   app.use('/api/stats', createStatsRouter(statsService));
+
+  // Wire AI
+  const aiService = new AiService();
+  app.use('/api/ai', createAiRouter(aiService));
 
   
   app.listen(PORT, () => {
