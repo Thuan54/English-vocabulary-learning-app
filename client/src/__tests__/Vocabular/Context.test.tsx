@@ -1,6 +1,6 @@
-import React from 'react';
+
 import { render, screen, act } from '@testing-library/react';
-import { VocabularyProvider, useVocabulary } from '../../contexts/VocabularyContext';
+import { VocabularyProvider, useVocabulary } from '../../pages/review';
 
 // Thành phần bổ trợ để truy cập và kiểm tra các giá trị từ Context
 const TestComponent = () => {
