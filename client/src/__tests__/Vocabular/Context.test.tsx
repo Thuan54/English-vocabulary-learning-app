@@ -1,6 +1,6 @@
-
+import React from 'react';
 import { render, screen, act } from '@testing-library/react';
-import { VocabularyProvider, useVocabulary } from '../../pages/review';
+import { VocabularyProvider, useVocabulary } from '../../contexts/VocabularyContext';
 
 // Thành phần bổ trợ để truy cập và kiểm tra các giá trị từ Context
 const TestComponent = () => {
@@ -48,6 +48,8 @@ const TestComponent = () => {
     </div>
   );
 };
+
+
 
 describe('VocabularyContext', () => {
   const renderProvider = () =>

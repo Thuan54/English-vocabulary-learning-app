@@ -2,7 +2,7 @@ import "@testing-library/jest-dom";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { jest } from "@jest/globals";
 
-import { Review } from "../../pages/review";
+import { Review } from "../../pages/Review";
 import * as reviewApi from "../../api/review.api";
 import * as vocabHook from "../../contexts/VocabularyContext";
 

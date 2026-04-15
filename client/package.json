@@ -16,7 +16,10 @@
     "framer-motion": "^12.38.0",
     "lucide-react": "^1.7.0",
     "react": "^19.2.4",
+    "react-dnd": "^16.0.1",
+    "react-dnd-html5-backend": "^16.0.1",
     "react-dom": "^19.2.4",
+    "react-router": "^7.14.1",
     "tailwindcss": "^4.2.2"
   },
   "devDependencies": {

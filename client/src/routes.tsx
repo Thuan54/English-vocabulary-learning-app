@@ -1,5 +1,5 @@
 import { createBrowserRouter } from "react-router";
-import { Review } from "./pages/review";
+import { Review } from "./pages/Review";
 
 export const router = createBrowserRouter([
   {
