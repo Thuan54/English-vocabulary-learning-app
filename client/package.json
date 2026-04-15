@@ -12,6 +12,9 @@
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.2.2",
+    "canvas-confetti": "^1.9.4",
+    "framer-motion": "^12.38.0",
+    "lucide-react": "^1.7.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "tailwindcss": "^4.2.2"
@@ -23,6 +26,7 @@
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@types/babel__core": "^7.20.5",
+    "@types/canvas-confetti": "^1.9.0",
     "@types/jest": "^30.0.0",
     "@types/node": "^24.12.2",
     "@types/react": "^19.2.14",

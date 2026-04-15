@@ -1,10 +1,25 @@
-import {Router} from "express"
-import {getAllWords} from "./vocabulary.service"
+import { Router } from "express";
+import { createWord } from "./vocabulary.service";
 
-const router = Router()
+const router = Router();
 
-router.get('/',async(req,res) => {
-    const words = await getAllWords();
-})
+router.post("/word", async (req, res) => {
 
-export default router
+  try {
+
+    const result = await createWord(req.body);
+
+    res.status(201).json(result);
+
+  } catch (err: any) {
+
+    res.status(400).json({
+      error: err.message
+    });
+
+  }
+
+});
+
+
+export default router;
