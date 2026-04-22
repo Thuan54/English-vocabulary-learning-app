@@ -24,41 +24,35 @@ export function Review() {
   // ISSUE 9 — Fetch Due Cards
   // ===============================
 
-  useEffect(() => {
+  const loadCards = async () => {
+    setIsLoading(true);
+    try {
+      const data = await fetchDueCards();
 
-    const loadCards = async () => {
-      try {
-        const data = await fetchDueCards();
-
-        if (data && data.length > 0) {
-          setReviewWords(data);
-        } else {
-
-          // fallback local logic nếu API chưa có
-          setReviewWords(
-            words.filter(
-              w => w.nextReview && new Date(w.nextReview) <= new Date()
-            )
-          );
-
-        }
-
-      } catch (err) {
-
-        // fallback local
+      if (Array.isArray(data)) {
+        setReviewWords(data);
+      } else {
+        // fallback local logic nếu API chưa có
         setReviewWords(
           words.filter(
             w => w.nextReview && new Date(w.nextReview) <= new Date()
           )
         );
-
-      } finally {
-        setIsLoading(false);
       }
-    };
+    } catch (err) {
+      // fallback local
+      setReviewWords(
+        words.filter(
+          w => w.nextReview && new Date(w.nextReview) <= new Date()
+        )
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  useEffect(() => {
     loadCards();
-
   }, [words]);
 
 
@@ -191,13 +185,7 @@ export function Review() {
   };
 
   const handleRestart = () => {
-
-    setReviewWords(
-      words.filter(
-        w => w.nextReview && new Date(w.nextReview) <= new Date()
-      )
-    );
-
+    loadCards();
     setCurrentIndex(0);
     setIsFlipped(false);
 

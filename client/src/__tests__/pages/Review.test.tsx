@@ -1,15 +1,22 @@
+import '@testing-library/jest-dom';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Review } from '../../pages/Review';
 import { VocabularyProvider } from '../../contexts/VocabularyContext';
 import { fetchDueCards, submitReview } from '../../api/review.api';
 
 // Mock external dependencies
-jest.mock('../api/review.api');
+jest.mock('../../api/review.api', () => ({
+  fetchDueCards: jest.fn(),
+  submitReview: jest.fn(),
+}));
 jest.mock('canvas-confetti', () => jest.fn());
 jest.mock('framer-motion', () => ({
-  motion: ({ children, ...props }: any) => <div {...props}>{children}</div>,
+  motion: {
+    div: ({ children, ...props }: any) => <div {...props}>{children}</div>,
+  },
   AnimatePresence: ({ children }: any) => <>{children}</>,
 }));
+
 
 const mockFetchDueCards = fetchDueCards as jest.MockedFunction<typeof fetchDueCards>;
 const mockSubmitReview = submitReview as jest.MockedFunction<typeof submitReview>;
