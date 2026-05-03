@@ -1,13 +1,15 @@
+import { RouterProvider } from "react-router";
+import { router } from "./routes";
+import { DndProvider } from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
+import { VocabularyProvider } from "./contexts/VocabularyContext";
 
-function App() {
-
+export default function App() {
   return (
-    <>
-      <h1 className="text-3xl font-bold underline">
-        Hello world
-      </h1>
-    </>
-  )
+    <DndProvider backend={HTML5Backend}>
+      <VocabularyProvider>
+        <RouterProvider router={router} />
+      </VocabularyProvider>
+    </DndProvider>
+  );
 }
-
-export default App
