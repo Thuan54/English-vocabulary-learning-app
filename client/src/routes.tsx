@@ -2,7 +2,7 @@ import { createBrowserRouter } from "react-router";
 import { Review } from "./pages/Review";
 import { Dashboard } from "./pages/Dashboard";
 import { VocabularySearch } from "./pages/VocabularySearch";
-import { RelatedWordsPage } from "./pages/VocabularyMananger";
+import { RelatedWordsPage } from "./pages/RelatedWord";
 import { StudySessionPage } from "./pages/StudySessionPage";
 import { Layout } from "./components/Layout";
 
