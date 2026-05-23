@@ -3,7 +3,7 @@ import { Review } from "./pages/Review";
 import { Dashboard } from "./pages/Dashboard";
 import { VocabularySearch } from "./pages/VocabularySearch";
 import { RelatedWordsPage } from "./pages/RelatedWord";
-import { StudySessionPage } from "./pages/StudySessionPage";
+import { PdfExplain } from "./pages/PdfExplain";
 import { Layout } from "./components/Layout";
 
 export const router = createBrowserRouter([
@@ -15,7 +15,7 @@ export const router = createBrowserRouter([
       { path: "review", Component: Review },
       { path: "search", Component: VocabularySearch },
       { path: "relate", Component: RelatedWordsPage },
-      { path: "study", Component: StudySessionPage },
+      { path: "pdf", Component: PdfExplain },
     ],
   },
 ]);

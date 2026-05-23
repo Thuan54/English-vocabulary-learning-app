@@ -3,10 +3,9 @@ import {
   Home, 
   Search, 
   Network, 
-  Calendar, 
   BookOpen, 
-  LayoutGrid,
-  Flame
+  Flame,
+  FileSearch,
 } from "lucide-react";
 import { useVocabulary } from "../contexts/VocabularyContext";
 
@@ -18,6 +17,7 @@ export function Layout() {
     { path: "/", icon: Home, label: "Dashboard" },
     { path: "/search", icon: Search, label: "Search" },
     { path: "/relate", icon: Network, label: "Related Words" },
+    { path: "/pdf", icon: FileSearch, label: "PDF Explainer" },
     { path: "/review", icon: BookOpen, label: "Review" },
   ];
 

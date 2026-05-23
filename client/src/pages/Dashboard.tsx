@@ -1,23 +1,9 @@
 import { useVocabulary } from "../contexts/VocabularyContext";
-import { BookOpen, Target, TrendingUp, Calendar, CheckCircle2, Clock } from "lucide-react";
+import { BookOpen, Target, TrendingUp, CheckCircle2 } from "lucide-react";
 import { Link } from "react-router";
 
-const progressData = [
-  { day: "Mon", words: 5 },
-  { day: "Tue", words: 8 },
-  { day: "Wed", words: 12 },
-  { day: "Thu", words: 10 },
-  { day: "Fri", words: 15 },
-  { day: "Sat", words: 18 },
-  { day: "Sun", words: 22 },
-];
-
 export function Dashboard() {
-  const { words, totalLearned, reviewDue, streak } = useVocabulary();
-
-  const todayWords = words
-    .filter(w => w.nextReview && new Date(w.nextReview).toDateString() === new Date().toDateString())
-    .slice(0, 3);
+  const { totalLearned, reviewDue } = useVocabulary();
 
   return (
     <div className="p-8 space-y-6">

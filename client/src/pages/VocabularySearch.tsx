@@ -1,59 +1,25 @@
-import { useState } from "react";
+import { useEffect, useState, type KeyboardEvent } from "react";
 import { Search, Volume2, BookmarkPlus, Check } from "lucide-react";
 import { useVocabulary, Word } from "../contexts/VocabularyContext";
+import { dictionaryData } from "./vocabularyData";
 
-// Mock dictionary data
-const dictionaryData: { [key: string]: Omit<Word, "id" | "category" | "addedDate" | "reviewCount"> } = {
-  "tenacious": {
-    word: "Tenacious",
-    meaning: "Tending to keep a firm hold of something; persistent",
-    pronunciation: "/təˈneɪʃəs/",
-    examples: [
-      "She was tenacious in her pursuit of excellence.",
-      "The team showed tenacious spirit despite losing."
-    ],
-    synonyms: ["persistent", "determined", "resolute", "steadfast"],
-    topics: ["Character", "Determination"]
-  },
-  "benevolent": {
-    word: "Benevolent",
-    meaning: "Well meaning and kindly; showing goodwill",
-    pronunciation: "/bəˈnevələnt/",
-    examples: [
-      "The benevolent ruler was loved by all citizens.",
-      "She made a benevolent donation to the charity."
-    ],
-    synonyms: ["kind", "generous", "compassionate", "charitable"],
-    topics: ["Character", "Kindness"]
-  },
-  "ubiquitous": {
-    word: "Ubiquitous",
-    meaning: "Present, appearing, or found everywhere",
-    pronunciation: "/juːˈbɪkwɪtəs/",
-    examples: [
-      "Smartphones have become ubiquitous in modern society.",
-      "Coffee shops are ubiquitous in this neighborhood."
-    ],
-    synonyms: ["omnipresent", "everywhere", "pervasive", "universal"],
-    topics: ["Description", "Common"]
-  },
-  "eloquent": {
-    word: "Eloquent",
-    meaning: "Fluent or persuasive in speaking or writing",
-    pronunciation: "/ˈɛləkwənt/",
-    examples: [
-      "The speaker gave an eloquent speech about climate change.",
-      "Her eloquent writing style captivated readers."
-    ],
-    synonyms: ["articulate", "fluent", "persuasive", "expressive"],
-    topics: ["Communication", "Skills"]
-  }
+type WordChatMessage = {
+  id: string;
+  role: "user" | "bot";
+  content: string;
 };
 
 export function VocabularySearch() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedWord, setSelectedWord] = useState<typeof dictionaryData[string] | null>(null);
+  const [wordChatInput, setWordChatInput] = useState("");
+  const [wordChatMessages, setWordChatMessages] = useState<WordChatMessage[]>([]);
   const { words, addWord } = useVocabulary();
+
+  useEffect(() => {
+    setWordChatMessages([]);
+    setWordChatInput("");
+  }, [selectedWord]);
 
   const handleSearch = () => {
     const term = searchTerm.toLowerCase().trim();
@@ -64,25 +30,72 @@ export function VocabularySearch() {
     }
   };
 
+  const isWordSaved = selectedWord
+    ? words.some((w) => w.word.toLowerCase() === selectedWord.word.toLowerCase())
+    : false;
+
   const handleAddWord = () => {
-    if (selectedWord) {
-      const newWord: Word = {
-        ...selectedWord,
-        id: Date.now().toString(),
-        category: "want-to-learn",
-        addedDate: new Date(),
-        reviewCount: 0
-      };
-      addWord(newWord);
-    }
+    if (!selectedWord || isWordSaved) return;
+
+    const newWord: Word = {
+      ...selectedWord,
+      id: Date.now().toString(),
+      category: "want-to-learn",
+      addedDate: new Date(),
+      reviewCount: 0,
+    };
+    addWord(newWord);
   };
 
-  const isWordSaved: boolean | undefined =
-  selectedWord
-    ? words.some(w => w.word.toLowerCase() === selectedWord.word.toLowerCase())
-    : undefined;
+  const generateWordChatResponse = (question: string) => {
+    if (!selectedWord) return "";
+    const lower = question.toLowerCase();
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (lower.includes("meaning") || lower.includes("define")) {
+      return `“${selectedWord.word}” means ${selectedWord.meaning}.`;
+    }
+    if (lower.includes("pronunci") || lower.includes("sound") || lower.includes("say")) {
+      return `The pronunciation of ${selectedWord.word} is ${selectedWord.pronunciation}.`;
+    }
+    if (lower.includes("example") || lower.includes("sentence")) {
+      return `Example sentences:\n- ${selectedWord.examples.join("\n- ")}`;
+    }
+    if (lower.includes("synonym") || lower.includes("similar")) {
+      return `Synonyms for ${selectedWord.word}: ${selectedWord.synonyms.join(", ")}.`;
+    }
+    if (lower.includes("topic") || lower.includes("use") || lower.includes("context")) {
+      return `${selectedWord.word} is often used in topics like ${selectedWord.topics.join(", ")}.`;
+    }
+    return `“${selectedWord.word}” means ${selectedWord.meaning}. Pronunciation: ${selectedWord.pronunciation}. Example: ${selectedWord.examples[0]}. Synonyms: ${selectedWord.synonyms.join(", ")}.`;
+  };
+
+  const handleWordChatSend = () => {
+    if (!selectedWord) return;
+    const question = wordChatInput.trim();
+    if (!question) return;
+
+    const userMessage: WordChatMessage = {
+      id: `user-${Date.now()}`,
+      role: "user",
+      content: question,
+    };
+
+    setWordChatMessages((prev) => [...prev, userMessage]);
+    setWordChatInput("");
+
+    const botResponse = generateWordChatResponse(question);
+    const botMessage: WordChatMessage = {
+      id: `bot-${Date.now()}`,
+      role: "bot",
+      content: botResponse,
+    };
+
+    setTimeout(() => {
+      setWordChatMessages((prev) => [...prev, botMessage]);
+    }, 250);
+  };
+
+  const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       handleSearch();
     }
@@ -121,101 +134,123 @@ export function VocabularySearch() {
 
       {/* Word Details */}
       {selectedWord && (
-        <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-200 space-y-6">
-          {/* Header */}
-          <div className="flex items-start justify-between">
-            <div>
-              <h2 className="text-4xl font-bold text-gray-800">{selectedWord.word}</h2>
-              <div className="flex items-center gap-3 mt-2">
-                <button className="flex items-center gap-2 text-blue-600 hover:text-blue-700">
+        <div className="space-y-6 text-gray-800">
+          <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
+            <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+              <div>
+                <h2 className="text-4xl font-bold text-gray-800">{selectedWord.word}</h2>
+                <p className="text-lg text-gray-600 mt-2 flex items-center gap-2">
                   <Volume2 className="w-5 h-5" />
-                  <span className="text-lg text-gray-600">{selectedWord.pronunciation}</span>
-                </button>
+                  {selectedWord.pronunciation}
+                </p>
+              </div>
+              <button
+                onClick={handleAddWord}
+                disabled={isWordSaved}
+                className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all ${
+                  isWordSaved
+                    ? "bg-green-100 text-green-700"
+                    : "bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:shadow-lg"
+                }`}
+              >
+                {isWordSaved ? (
+                  <>
+                    <Check className="w-5 h-5" />
+                    Saved to Bank
+                  </>
+                ) : (
+                  <>
+                    <BookmarkPlus className="w-5 h-5" />
+                    Add to Word Bank
+                  </>
+                )}
+              </button>
+            </div>
+
+            <div className="mt-6 space-y-6">
+              <div>
+                <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                  Meaning
+                </h3>
+                <p className="text-lg text-gray-700">{selectedWord.meaning}</p>
+              </div>
+
+              <div>
+                <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                  Example Sentences
+                </h3>
+                <div className="space-y-2 text-gray-700">
+                  {selectedWord.examples.map((example, index) => (
+                    <p key={index}>• {example}</p>
+                  ))}
+                </div>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                    Synonyms
+                  </h3>
+                  <div className="flex flex-wrap gap-2 text-gray-700">
+                    {selectedWord.synonyms.map((synonym, index) => (
+                      <span key={index} className="px-3 py-1 bg-purple-50 text-purple-700 rounded-full font-medium">
+                        {synonym}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                    Topics
+                  </h3>
+                  <div className="flex flex-wrap gap-2 text-gray-700">
+                    {selectedWord.topics.map((topic, index) => (
+                      <span key={index} className="px-3 py-1 bg-green-50 text-green-700 rounded-full font-medium">
+                        {topic}
+                      </span>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
-            <button
-              onClick={handleAddWord}
-              disabled={isWordSaved}
-              className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all ${
-                isWordSaved
-                  ? "bg-green-100 text-green-700"
-                  : "bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:shadow-lg"
-              }`}
-            >
-              {isWordSaved ? (
-                <>
-                  <Check className="w-5 h-5" />
-                  Saved
-                </>
-              ) : (
-                <>
-                  <BookmarkPlus className="w-5 h-5" />
-                  Add to List
-                </>
-              )}
-            </button>
           </div>
 
-          {/* Meaning */}
-          <div>
-            <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">
-              Meaning
-            </h3>
-            <p className="text-xl text-gray-700">{selectedWord.meaning}</p>
-          </div>
-
-          {/* Examples */}
-          <div>
-            <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">
-              Example Sentences
-            </h3>
-            <div className="space-y-3">
-              {selectedWord.examples.map((example, index) => (
-                <div key={index} className="bg-blue-50 rounded-xl p-4 border-l-4 border-blue-500">
-                  <p className="text-gray-700">{example}</p>
+          <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
+            <h3 className="text-xl font-semibold text-gray-800 mb-4">Ask about {selectedWord.word}</h3>
+            <div className="space-y-4 mb-4">
+              {wordChatMessages.map((msg) => (
+                <div
+                  key={msg.id}
+                  className={`rounded-3xl p-4 max-w-[80%] ${
+                    msg.role === "user"
+                      ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white self-end ml-auto"
+                      : "bg-gray-100 text-gray-800"
+                  }`}
+                >
+                  <p className="whitespace-pre-wrap">{msg.content}</p>
                 </div>
               ))}
             </div>
-          </div>
-
-          {/* Synonyms */}
-          <div>
-            <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">
-              Synonyms
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              {selectedWord.synonyms.map((synonym, index) => (
-                <button
-                  key={index}
-                  onClick={() => {
-                    setSearchTerm(synonym);
-                    const term = synonym.toLowerCase().trim();
-                    if (dictionaryData[term]) {
-                      setSelectedWord(dictionaryData[term]);
-                    }
-                  }}
-                  className="px-4 py-2 bg-purple-100 text-purple-700 rounded-full hover:bg-purple-200 transition-colors font-medium"
-                >
-                  {synonym}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Topics */}
-          <div>
-            <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">
-              Topics
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              {selectedWord.topics.map((topic, index) => (
-                <span
-                  key={index}
-                  className="px-4 py-2 bg-green-100 text-green-700 rounded-full font-medium"
-                >
-                  {topic}
-                </span>
-              ))}
+            <div className="flex flex-col gap-3 md:flex-row md:items-center">
+              <input
+                type="text"
+                value={wordChatInput}
+                onChange={(e) => setWordChatInput(e.target.value)}
+                onKeyPress={(e) => {
+                  if (e.key === "Enter") {
+                    handleWordChatSend();
+                  }
+                }}
+                placeholder={`Ask about ${selectedWord.word} (meaning, example, synonym...)`}
+                className="flex-1 rounded-2xl border border-gray-200 px-4 py-4 focus:border-blue-500 focus:outline-none text-lg"
+              />
+              <button
+                onClick={handleWordChatSend}
+                className="px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-2xl font-medium hover:shadow-lg transition-shadow"
+              >
+                Ask
+              </button>
             </div>
           </div>
         </div>
