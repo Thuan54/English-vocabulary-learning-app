@@ -2,7 +2,16 @@ import express from "express";
 import dotenv from "dotenv";
 import vocabularyRoutes from "./modules/vocabulary/vocabulary.route";
 import { connectDB, getDB } from "./config/db";
+<<<<<<< HEAD
 import { errorHandler } from "./middleware/error.middleware";
+=======
+import {errorHandler} from "./middleware/error.middleware"
+import { createStatsRouter} from './modules/stats/stats.route';
+import { StatsService} from './modules/stats/stats.service';
+import { StatsRepository} from './modules/stats/stats.repo';
+import { createAiRouter } from './modules/ai/ai.route';
+import { AiService } from './modules/ai/ai.service';
+>>>>>>> ducquan
 
 import { createStatsRouter } from './modules/stats/stats.route';
 import { StatsService } from './modules/stats/stats.service';
@@ -48,11 +57,22 @@ export const startServer = async () => {
   const statsService = new StatsService(statsRepo);
   app.use('/api/stats', createStatsRouter(statsService));
 
+<<<<<<< HEAD
   // AI (kết nối ml_server)
   const mlClient = new MlClient(ML_SERVER_URL);
   const aiService = new AiService(mlClient);
   app.use('/api/ai', createAiRouter(aiService));
   console.log(`ML Server URL: ${ML_SERVER_URL}`);
+=======
+  // Wire AI
+  const aiService = new AiService();
+  app.use('/api/ai', createAiRouter(aiService));
+
+  
+  app.listen(PORT, () => {
+    console.log(`http://localhost:${PORT}`);
+  });
+>>>>>>> ducquan
 
   // Review
   const reviewRepo = new ReviewRepository(db);

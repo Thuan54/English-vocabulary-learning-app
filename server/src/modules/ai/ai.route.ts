@@ -1,11 +1,16 @@
 import { Router, Request, Response } from 'express';
 import { asyncHandler } from '../../middleware/error';
 import { AiService } from './ai.service';
+<<<<<<< HEAD
 import { validateString, validateNumber, normalizeWord } from '../../utils/validation';
+=======
+import { validateString, normalizeWord } from '../../utils/validation';
+>>>>>>> ducquan
 
 export const createAiRouter = (service: AiService) => {
   const router = Router();
 
+<<<<<<< HEAD
   /**
    * POST /api/ai/explain
    * Body: { word: string }
@@ -38,5 +43,16 @@ export const createAiRouter = (service: AiService) => {
     res.status(200).json({ suggestions });
   }));
 
+=======
+  router.post('/explain', asyncHandler(async (req: Request, res: Response) => {
+    const rawWord = validateString(req.body.word, 'Word');
+    const word = normalizeWord(rawWord);
+    
+    const result = await service.explainWord(word);
+    
+    res.status(200).json(result);
+  }));
+
+>>>>>>> ducquan
   return router;
 };
