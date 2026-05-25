@@ -64,25 +64,72 @@ export function VocabularySearch() {
     }
   };
 
+  const isWordSaved = selectedWord
+    ? words.some((w) => w.word.toLowerCase() === selectedWord.word.toLowerCase())
+    : false;
+
   const handleAddWord = () => {
-    if (selectedWord) {
-      const newWord: Word = {
-        ...selectedWord,
-        id: Date.now().toString(),
-        category: "want-to-learn",
-        addedDate: new Date(),
-        reviewCount: 0
-      };
-      addWord(newWord);
-    }
+    if (!selectedWord || isWordSaved) return;
+
+    const newWord: Word = {
+      ...selectedWord,
+      id: Date.now().toString(),
+      category: "want-to-learn",
+      addedDate: new Date(),
+      reviewCount: 0,
+    };
+    addWord(newWord);
   };
 
-  const isWordSaved: boolean | undefined =
-  selectedWord
-    ? words.some(w => w.word.toLowerCase() === selectedWord.word.toLowerCase())
-    : undefined;
+  const generateWordChatResponse = (question: string) => {
+    if (!selectedWord) return "";
+    const lower = question.toLowerCase();
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (lower.includes("meaning") || lower.includes("define")) {
+      return `“${selectedWord.word}” means ${selectedWord.meaning}.`;
+    }
+    if (lower.includes("pronunci") || lower.includes("sound") || lower.includes("say")) {
+      return `The pronunciation of ${selectedWord.word} is ${selectedWord.pronunciation}.`;
+    }
+    if (lower.includes("example") || lower.includes("sentence")) {
+      return `Example sentences:\n- ${selectedWord.examples.join("\n- ")}`;
+    }
+    if (lower.includes("synonym") || lower.includes("similar")) {
+      return `Synonyms for ${selectedWord.word}: ${selectedWord.synonyms.join(", ")}.`;
+    }
+    if (lower.includes("topic") || lower.includes("use") || lower.includes("context")) {
+      return `${selectedWord.word} is often used in topics like ${selectedWord.topics.join(", ")}.`;
+    }
+    return `“${selectedWord.word}” means ${selectedWord.meaning}. Pronunciation: ${selectedWord.pronunciation}. Example: ${selectedWord.examples[0]}. Synonyms: ${selectedWord.synonyms.join(", ")}.`;
+  };
+
+  const handleWordChatSend = () => {
+    if (!selectedWord) return;
+    const question = wordChatInput.trim();
+    if (!question) return;
+
+    const userMessage: WordChatMessage = {
+      id: `user-${Date.now()}`,
+      role: "user",
+      content: question,
+    };
+
+    setWordChatMessages((prev) => [...prev, userMessage]);
+    setWordChatInput("");
+
+    const botResponse = generateWordChatResponse(question);
+    const botMessage: WordChatMessage = {
+      id: `bot-${Date.now()}`,
+      role: "bot",
+      content: botResponse,
+    };
+
+    setTimeout(() => {
+      setWordChatMessages((prev) => [...prev, botMessage]);
+    }, 250);
+  };
+
+  const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       handleSearch();
     }
