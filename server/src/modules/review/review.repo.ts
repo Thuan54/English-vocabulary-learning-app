@@ -52,3 +52,22 @@ export class ReviewRepository {
     ]).toArray();
   }
 }
+
+import { getDB } from "../../config/db";
+
+export async function findCardById(cardId: string) {
+  const db = getDB();
+  // Tìm từ vựng trong collection vocabulary
+  return await db.collection("vocabulary").findOne({ _id: new ObjectId(cardId) });
+}
+
+export async function updateCardReview(
+  cardId: string, 
+  updateData: { lastReviewed: Date; nextReview: Date; reviewCount: number }
+) {
+  const db = getDB();
+  return await db.collection("vocabulary").updateOne(
+    { _id: new ObjectId(cardId) },
+    { $set: updateData }
+  );
+}
