@@ -1,4 +1,4 @@
-import { insertWord, findWordByQuery, incrementSearchCount } from './vocabulary.repository';
+import { insertWord, findWordByQuery, incrementSearchCount, findAllWords } from './vocabulary.repository';
 import { validateString, normalizeWord } from '../../utils/validation';
 import { AppError } from '../../middleware/error';
 
@@ -7,8 +7,7 @@ import { AppError } from '../../middleware/error';
 ========================= */
 
 export const getAllWords = async () => {
-  // nếu chưa có logic DB thì tạm return []
-  return [];
+  return await findAllWords();
 };
 
 /* =========================

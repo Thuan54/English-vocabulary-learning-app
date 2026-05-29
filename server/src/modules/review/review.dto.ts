@@ -9,3 +9,9 @@ export interface ReviewResponseDTO {
   nextReview: Date;
   createdAt: Date;
 }
+
+
+export interface CreateReviewDTO {
+  cardId: string;
+  difficulty: "easy" | "medium" | "hard" | "forget";
+}

@@ -23,4 +23,51 @@ export class ReviewRepository {
       createdAt: doc.createdAt,
     };
   }
+
+  async findByWordId(wordId: string): Promise<any> {
+    return this.collection.findOne({ wordId: new ObjectId(wordId) });
+  }
+
+  async updateReview(id: string, doc: any): Promise<void> {
+    await this.collection.updateOne({ _id: new ObjectId(id) }, { $set: doc });
+  }
+
+  async insertRaw(doc: any): Promise<void> {
+    await this.collection.insertOne(doc);
+  }
+
+  async findDueReviews(): Promise<any[]> {
+    const now = new Date();
+    return this.collection.aggregate([
+      { $match: { nextReview: { $lte: now } } },
+      {
+        $lookup: {
+          from: 'words',
+          localField: 'wordId',
+          foreignField: '_id',
+          as: 'wordDetails'
+        }
+      },
+      { $unwind: '$wordDetails' }
+    ]).toArray();
+  }
+}
+
+import { getDB } from "../../config/db";
+
+export async function findCardById(cardId: string) {
+  const db = getDB();
+  // Tìm từ vựng trong collection vocabulary
+  return await db.collection("vocabulary").findOne({ _id: new ObjectId(cardId) });
+}
+
+export async function updateCardReview(
+  cardId: string, 
+  updateData: { lastReviewed: Date; nextReview: Date; reviewCount: number }
+) {
+  const db = getDB();
+  return await db.collection("vocabulary").updateOne(
+    { _id: new ObjectId(cardId) },
+    { $set: updateData }
+  );
 }
