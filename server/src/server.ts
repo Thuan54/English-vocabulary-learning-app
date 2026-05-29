@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import cors from "cors";
 import dotenv from "dotenv";
 
 import vocabularyRoutes from "./modules/vocabulary/vocabulary.route";
@@ -22,9 +23,8 @@ dotenv.config();
 const app = express();
 
 app.use(cors({
-  origin: "http://localhost:5173",
-  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
+  origin: true,
+  credentials: true
 }));
 
 // 2. Middleware giải mã JSON phải đặt TRƯỚC các routes

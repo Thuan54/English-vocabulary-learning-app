@@ -23,3 +23,21 @@ export const createReviewRouter = (service: ReviewService) => {
 
   return router;
 };
+
+import { processReview } from "./review.service";
+
+const router = Router();
+
+router.post("/review", async (req, res) => {
+  try {
+    // req.body chứa { cardId, difficulty } gửi từ client
+    const result = await processReview(req.body);
+    res.status(200).json(result);
+  } catch (err: any) {
+    res.status(400).json({
+      error: err.message
+    });
+  }
+});
+
+export default router;
