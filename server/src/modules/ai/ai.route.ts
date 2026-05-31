@@ -7,11 +7,11 @@ export const createAiRouter = (service: AiService) => {
   const router = Router();
 
   router.post('/explain', asyncHandler(async (req: Request, res: Response) => {
-    const rawWord = validateString(req.body.word, 'Word');
-    const word = normalizeWord(rawWord);
-    
-    const result = await service.explainWord(word);
-    
+    const rawText = validateString(req.body.text ?? req.body.word, 'Text');
+    const text = normalizeWord(rawText);
+
+    const result = await service.explainText(text);
+
     res.status(200).json(result);
   }));
 
