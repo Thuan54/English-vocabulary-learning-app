@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 
 export interface Word {
   id: string;
@@ -166,6 +166,31 @@ const sampleWords: Word[] = [
 export function VocabularyProvider({ children }: { children: React.ReactNode }) {
   const [words, setWords] = useState<Word[]>(sampleWords);
   const [streak] = useState(7);
+
+  useEffect(() => {
+    fetch("/api/words")
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          const mappedWords = data.map((item: any) => ({
+            id: item._id || item.id,
+            word: item.word,
+            meaning: item.meaning,
+            pronunciation: item.pronunciation || "",
+            examples: item.examples || [],
+            synonyms: item.synonyms || [],
+            topics: item.topics || [],
+            category: item.category || "want-to-learn",
+            addedDate: item.createdAt ? new Date(item.createdAt) : new Date(),
+            reviewCount: item.reviewCount || 0,
+          }));
+          setWords(mappedWords);
+        }
+      })
+      .catch(err => {
+        console.error("Failed to fetch words:", err);
+      });
+  }, []);
 
   const addWord = (word: Word) => {
     setWords([...words, word]);

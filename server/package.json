@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "seed": "npx tsx src/test/seed-cli.ts",
+  "seed": "tsx --env-file=.env src/test/seed-cli.ts",
     "test": "jest --config jest.config.js",
     "test:coverage": "jest --config jest.config.js --coverage"
   },
@@ -29,3 +29,4 @@
     "typescript": "^6.0.3"
   }
 }
+

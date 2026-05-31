@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createWord, lookupWord } from "./vocabulary.service";
+import { createWord, lookupWord, getAllWords } from "./vocabulary.service";
 
 const router = Router();
 
@@ -28,6 +28,15 @@ router.get('/word', async (req, res) => {
   } catch (err: any) {
     const status = err.statusCode ?? 400;
     res.status(status).json({ error: err.message });
+  }
+});
+
+router.get('/words', async (req, res) => {
+  try {
+    const result = await getAllWords();
+    res.status(200).json(result);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
   }
 });
 
