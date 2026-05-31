@@ -1,17 +1,7 @@
-<<<<<<< HEAD
-import VocabularyPage from "./pages/VocabularyPage";
-
-const routes = [
-    {
-        path: "/vocabulary",
-        element: <VocabularyPage />,
-    },
-];
-
-export default routes;
-=======
 import { createBrowserRouter } from "react-router";
 import { Review } from "./pages/Review";
+import { VocabularyPage } from "./pages/VocabularyPage";
+import { LearnedWordsPage } from "./pages/LearnedWordsPage"; 
 import { Dashboard } from "./pages/Dashboard";
 import { VocabularySearch } from "./pages/VocabularySearch";
 import { RelatedWordsPage } from "./pages/RelatedWord";
@@ -25,10 +15,10 @@ export const router = createBrowserRouter([
     children: [
       { index: true, Component: Dashboard },
       { path: "review", Component: Review },
+      { path: "learned", Component: LearnedWordsPage }, 
       { path: "search", Component: VocabularySearch },
       { path: "relate", Component: RelatedWordsPage },
       { path: "study", Component: StudySessionPage },
     ],
   },
 ]);
->>>>>>> cf0b1a83ec975660fb64f883db169dfc26d281c8
