@@ -1,5 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
+import cors from "cors";
+
 import vocabularyRoutes from "./modules/vocabulary/vocabulary.route";
 import { connectDB, getDB } from "./config/db";
 import {errorHandler} from "./middleware/error.middleware"
@@ -19,6 +21,12 @@ dotenv.config();
 
 const app = express();
 
+app.use(cors({
+  origin: "http://localhost:5173",
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+}));
+
 // 2. Middleware giải mã JSON phải đặt TRƯỚC các routes
 app.use(express.json());
 
@@ -30,8 +38,6 @@ app.use("/api", vocabularyRoutes);
 app.get("/health", (req, res) => {
   res.status(200).json({ status: "ok" });
 });
-
-app.use(errorHandler);
 
 const PORT = process.env.PORT || 3000;
 
@@ -54,6 +60,8 @@ export const startServer = async () => {
   const wordRepo = new WordRepository(db);
   const wordService = new WordService(wordRepo);
   app.use('/api/word', createWordRouter(wordService));
+
+  app.use(errorHandler);
 
   app.listen(PORT, () => {
     console.log(`http://localhost:${PORT}`);

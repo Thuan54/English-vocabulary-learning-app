@@ -55,13 +55,59 @@ export function VocabularySearch() {
   const [selectedWord, setSelectedWord] = useState<typeof dictionaryData[string] | null>(null);
   const { words, addWord } = useVocabulary();
 
-  const handleSearch = () => {
+  // add
+  const [searchedWord, setSearchedWord] = useState("");
+  const [aiExplanation, setAiExplanation] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState("");
+
+  const fetchAiExplanation = async (word: string) => {
+    try {
+      setAiLoading(true);
+      setAiError("");
+      setAiExplanation("");
+
+      const response = await fetch("http://localhost:3000/api/ai/explain", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ word }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch AI explanation");
+      }
+
+      const data = await response.json();
+      setAiExplanation(data.explanation);
+    } catch {
+      setAiError("Cannot load AI explanation.");
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
+  const handleSearch = async () => {
     const term = searchTerm.toLowerCase().trim();
+
+    if (!term) {
+      setSelectedWord(null);
+      setSearchedWord("");
+      setAiExplanation("");
+      setAiError("");
+      return;
+    }
+
+    setSearchedWord(term);
+
     if (dictionaryData[term]) {
       setSelectedWord(dictionaryData[term]);
     } else {
       setSelectedWord(null);
     }
+
+    await fetchAiExplanation(term);
   };
 
   const handleAddWord = () => {
@@ -118,6 +164,40 @@ export function VocabularySearch() {
           </button>
         </div>
       </div>
+
+      {/* AI Explanation */}
+      {searchedWord && (
+        <div className="bg-white rounded-2xl shadow-lg p-6 mb-8 border border-purple-200">
+          <h3 className="text-sm font-semibold text-purple-600 uppercase tracking-wide mb-3">
+            AI Explanation
+          </h3>
+
+          <p className="text-gray-500 mb-3">
+            Explanation for:{" "}
+            <span className="font-semibold text-gray-800">
+              {searchedWord}
+            </span>
+          </p>
+
+          {aiLoading && (
+            <p className="text-gray-500">
+              AI is generating explanation...
+            </p>
+          )}
+
+          {aiError && (
+            <p className="text-red-500">
+              {aiError}
+            </p>
+          )}
+
+          {!aiLoading && !aiError && aiExplanation && (
+            <p className="text-lg text-gray-700 leading-relaxed">
+              {aiExplanation}
+            </p>
+          )}
+        </div>
+      )}
 
       {/* Word Details */}
       {selectedWord && (
@@ -221,9 +301,11 @@ export function VocabularySearch() {
         </div>
       )}
 
-      {selectedWord === null && searchTerm && (
+      {selectedWord === null && searchedWord && (
         <div className="bg-white rounded-2xl shadow-lg p-12 border border-gray-200 text-center">
-          <p className="text-gray-500 text-lg">No results found. Try searching for: tenacious, benevolent, ubiquitous, or eloquent</p>
+          <p className="text-gray-500 text-lg">
+            No dictionary result found. AI explanation is still available above.
+          </p>
         </div>
       )}
     </div>
