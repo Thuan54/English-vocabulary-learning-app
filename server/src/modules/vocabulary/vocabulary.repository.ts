@@ -16,3 +16,22 @@ export async function insertWord(word: string, meaning: string) {
     meaning
   };
 }
+
+export async function findWordByQuery(query: string) {
+  const db = getDB();
+  const collection = db.collection('vocabulary');
+
+  return collection.findOne({
+    word: { $regex: new RegExp(`^${query}$`, 'i') }
+  });
+}
+
+export async function incrementSearchCount(query: string) {
+  const db = getDB();
+  const collection = db.collection('vocabulary');
+
+  await collection.updateOne(
+    { word: { $regex: new RegExp(`^${query}$`, 'i') } },
+    { $inc: { search_count: 1 } }
+  );
+}
