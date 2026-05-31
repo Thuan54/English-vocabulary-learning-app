@@ -12,9 +12,9 @@ import { StatsRepository} from './modules/stats/stats.repo';
 import { createAiRouter } from './modules/ai/ai.route';
 import { AiService } from './modules/ai/ai.service';
 
-import { ReviewRepository } from './modules/review/review.repo'
-import { ReviewService } from './modules/review/review.service'
-import { createReviewRouter } from './modules/review/review.route'
+import { WordRepository } from './modules/word/word.repo';
+import { WordService } from './modules/word/word.service';
+import { createWordRouter } from './modules/word/word.route';
 
 // 1. Cấu hình dotenv PHẢI ĐẶT ĐẦU TIÊN để các biến env có sẵn cho DB và Port
 dotenv.config();
@@ -56,10 +56,10 @@ export const startServer = async () => {
   const aiService = new AiService();
   app.use('/api/ai', createAiRouter(aiService));
 
-  //Review
-  const reviewRepo = new ReviewRepository(db);
-  const reviewService = new ReviewService(reviewRepo);
-  app.use('/api/reviews', createReviewRouter(reviewService));
+  // WORD
+  const wordRepo = new WordRepository(db);
+  const wordService = new WordService(wordRepo);
+  app.use('/api/word', createWordRouter(wordService));
 
   app.use(errorHandler);
 
