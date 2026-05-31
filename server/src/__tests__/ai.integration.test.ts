@@ -14,22 +14,30 @@ app.use(errorHandler);
 
 describe('AI Explain Endpoint Integration', () => {
   it('returns a mock explanation for a valid word and status 200', async () => {
-    const payload = { word: 'test' };
+    const payload = { text: 'test' };
     const res = await request(app).post('/api/ai/explain').send(payload);
 
     expect(res.status).toBe(200);
     expect(res.body).toHaveProperty('explanation');
-    expect(res.body.explanation).toEqual(expect.stringContaining('mock explanation for the word \'test\''));
+    expect(res.body.explanation).toEqual(expect.stringContaining("mock explanation for the word 'test'"));
   });
 
-  it('returns 400 on missing or invalid word', async () => {
-    // Empty string
-    const res1 = await request(app).post('/api/ai/explain').send({ word: '   ' }); 
+  it('returns a mock explanation for a sentence selection', async () => {
+    const payload = { text: 'test example sentence' };
+    const res = await request(app).post('/api/ai/explain').send(payload);
+
+    expect(res.status).toBe(200);
+    expect(res.body.explanation).toEqual(
+      expect.stringContaining("mock explanation for the sentence or phrase 'test example sentence'"),
+    );
+  });
+
+  it('returns 400 on missing or invalid text', async () => {
+    const res1 = await request(app).post('/api/ai/explain').send({ text: '   ' });
     expect(res1.status).toBe(400);
     expect(res1.body.error).toHaveProperty('code', 'VALIDATION_ERROR');
 
-    // Missing field
-    const res2 = await request(app).post('/api/ai/explain').send({ somethingElse: 'test' }); 
+    const res2 = await request(app).post('/api/ai/explain').send({ somethingElse: 'test' });
     expect(res2.status).toBe(400);
     expect(res2.body.error).toHaveProperty('code', 'VALIDATION_ERROR');
   });

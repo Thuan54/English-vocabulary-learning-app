@@ -1,6 +1,6 @@
 import express from "express";
-import dotenv from "dotenv";
 import cors from "cors";
+import dotenv from "dotenv";
 
 import vocabularyRoutes from "./modules/vocabulary/vocabulary.route";
 import { connectDB, getDB } from "./config/db";

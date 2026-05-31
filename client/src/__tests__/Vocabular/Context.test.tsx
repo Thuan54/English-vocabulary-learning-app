@@ -52,6 +52,14 @@ const TestComponent = () => {
 
 
 describe('VocabularyContext', () => {
+  beforeAll(() => {
+    (window as any).fetch = jest.fn().mockImplementation(() =>
+      Promise.resolve({
+        json: () => Promise.resolve([]),
+      })
+    ) as any;
+  });
+
   const renderProvider = () =>
     render(
       <VocabularyProvider>
