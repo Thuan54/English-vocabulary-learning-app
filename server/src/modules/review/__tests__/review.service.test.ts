@@ -1,10 +1,12 @@
 import { ReviewService } from '../review.service';
 import { ReviewRepository } from '../review.repo';
+import { WordRepository } from '../../word/word.repo';
 import { AppError } from '../../../middleware/error';
 import { ObjectId } from 'mongodb';
 
 describe('ReviewService Unit', () => {
     let mockRepo: jest.Mocked<ReviewRepository>;
+    let mockWordRepo: jest.Mocked<WordRepository>;
     let service: ReviewService;
 
     beforeEach(() => {
@@ -15,7 +17,10 @@ describe('ReviewService Unit', () => {
             updateReview: jest.fn(),
             insertRaw: jest.fn(),
         } as any;
-        service = new ReviewService(mockRepo);
+        mockWordRepo = {
+            updateReviewData: jest.fn()
+        } as any;
+        service = new ReviewService(mockRepo, mockWordRepo);
     });
 
     describe('createReview', () => {
@@ -214,5 +219,24 @@ describe('ReviewService Unit', () => {
                 })
             );
         });
-    });
+        it('marks the word as learned once it reaches mastery', async () => {
+            const existingReview = {
+                _id: new ObjectId(),
+                wordId: new ObjectId(wordId),
+                srs: { interval: 15, repetition: 4, ease: 2.9 }
+            };
+            mockRepo.findByWordId.mockResolvedValue(existingReview);
+
+            await service.processReview(wordId, 'easy');
+
+            expect(mockWordRepo.updateReviewData).toHaveBeenCalledWith(
+                wordId,
+                expect.objectContaining({
+                    category: 'learned',
+                    reviewCount: 5,
+                    nextReview: expect.any(Date),
+                    lastReviewed: expect.any(Date)
+                })
+            );
+        });    });
 });

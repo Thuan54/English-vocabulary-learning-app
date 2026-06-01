@@ -27,4 +27,8 @@ export class WordService {
     async getWords(): Promise<WordResponseDTO[]> {
         return this.repo.getAll();
     }
+
+    async updateWordReviewData(wordId: string, updates: Partial<{ category: string; reviewCount: number; nextReview: Date; lastReviewed: Date }>): Promise<void> {
+        return this.repo.updateReviewData(wordId, updates);
+    }
 }

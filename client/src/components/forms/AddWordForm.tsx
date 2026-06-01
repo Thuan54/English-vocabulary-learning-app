@@ -1,5 +1,5 @@
-﻿import React, { useState } from 'react';
-import { addWordAPI } from '../api/vocabulary.api';
+import React, { useState } from 'react';
+import { addWordAPI } from '../../api/vocabulary.api';
 
 export const AddWordForm: React.FC = () => {
     const [word, setWord] = useState('');

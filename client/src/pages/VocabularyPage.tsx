@@ -1,4 +1,4 @@
-import { AddWordForm } from "./AddWordForm";
+import { AddWordForm } from "../components/forms/AddWordForm";
 
 export default function VocabularyPage() {
     return (

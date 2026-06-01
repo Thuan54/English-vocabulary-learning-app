@@ -3,9 +3,13 @@ import { ReviewRepository } from './review.repo';
 import { ReviewResponseDTO } from './review.dto';
 import { validateString } from '../../utils/validation';
 import { AppError } from '../../middleware/error';
+import { WordRepository } from '../word/word.repo';
 
 export class ReviewService {
-  constructor(private repo: ReviewRepository) {}
+  private static readonly MASTERED_EASE = 3.0;
+  private static readonly MASTERED_REPETITION = 5;
+
+  constructor(private repo: ReviewRepository, private wordRepo: WordRepository) {}
 
   async createReview(rawWordId: unknown, rawNextReview: unknown): Promise<ReviewResponseDTO> {
     const wordId = validateString(rawWordId, 'wordId');
@@ -88,12 +92,22 @@ export class ReviewService {
       createdAt: new Date()
     };
 
+    const isMastered = ease >= ReviewService.MASTERED_EASE && repetition >= ReviewService.MASTERED_REPETITION;
+    const wordUpdate = {
+      category: isMastered ? 'learned' : 'want-to-learn',
+      reviewCount: repetition,
+      nextReview,
+      lastReviewed: new Date()
+    };
+
     if (review) {
       await this.repo.updateReview(review._id.toString(), doc);
     } else {
       await this.repo.insertRaw(doc);
     }
 
+    await this.wordRepo.updateReviewData(wordId, wordUpdate);
+
     return { message: 'Review submitted successfully', nextReview };
   }
-}
+}
