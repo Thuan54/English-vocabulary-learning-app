@@ -1,6 +1,7 @@
 import { insertWord, findWordByQuery, incrementSearchCount, findAllWords } from './vocabulary.repository';
 import { validateString, normalizeWord } from '../../utils/validation';
 import { AppError } from '../../middleware/error';
+import { CreateWordDTO } from './vocabulary.dto';
 
 /* =========================
    GET ALL WORDS
@@ -15,7 +16,7 @@ export const getAllWords = async () => {
 ========================= */
 
 // src/modules/vocabulary/vocabulary.service.ts
-export async function createWord(data: { word: string; meaning: string }) {
+export async function createWord(data: CreateWordDTO) {
   const { word, meaning } = data;
 
   if (!word || !meaning) {

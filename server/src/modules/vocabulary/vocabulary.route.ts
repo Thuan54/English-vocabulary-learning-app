@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { createWord, lookupWord, getAllWords } from "./vocabulary.service";
+import { CreateWordDTO } from "./vocabulary.dto";
 
 const router = Router();
 

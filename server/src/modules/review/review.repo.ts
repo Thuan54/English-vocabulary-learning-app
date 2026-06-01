@@ -3,6 +3,8 @@ import { ReviewInputDTO, ReviewResponseDTO } from './review.dto';
 
 export class ReviewRepository {
   private collection: Collection;
+  private static readonly TOO_EASY_EASE_THRESHOLD = 3.0;
+  private static readonly MIN_REPETITION_FOR_MASTERED = 5;
 
   constructor(db: Db) {
     this.collection = db.collection('reviews');
@@ -39,7 +41,17 @@ export class ReviewRepository {
   async findDueReviews(): Promise<any[]> {
     const now = new Date();
     return this.collection.aggregate([
-      { $match: { nextReview: { $lte: now } } },
+      {
+        $match: {
+          nextReview: { $lte: now },
+          $or: [
+            { srs: { $exists: false } },
+            { srs: null },
+            { 'srs.ease': { $lt: ReviewRepository.TOO_EASY_EASE_THRESHOLD } },
+            { 'srs.repetition': { $lt: ReviewRepository.MIN_REPETITION_FOR_MASTERED } }
+          ]
+        }
+      },
       {
         $lookup: {
           from: 'words',

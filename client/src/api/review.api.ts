@@ -1,7 +1,6 @@
-
 export async function fetchDueCards() {
 
-  const res = await fetch("/reviews/due");
+  const res = await fetch("api/reviews/due");
 
   if (!res.ok) {
     throw new Error("Failed to fetch cards");
@@ -12,7 +11,7 @@ export async function fetchDueCards() {
 
 export async function submitReview(wordId: string, difficulty: string) {
 
-  const res = await fetch("/reviews", {
+  const res = await fetch("api/reviews", {
 
     method: "POST",
 
@@ -33,4 +32,3 @@ export async function submitReview(wordId: string, difficulty: string) {
 
   return res.json();
 }
-

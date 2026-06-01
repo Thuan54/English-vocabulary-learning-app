@@ -10,7 +10,7 @@ export const createAiRouter = (service: AiService) => {
     const rawText = validateString(req.body.text ?? req.body.word, 'Text');
     const text = normalizeWord(rawText);
 
-    const result = await service.explainText(text);
+    const result = await service.explainWord(text);
 
     res.status(200).json(result);
   }));

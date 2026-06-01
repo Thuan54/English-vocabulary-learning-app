@@ -11,7 +11,7 @@ export const createWordRouter = (service: WordService) => {
         res.status(201).json(result);
     }));
 
-    // GET /word
+    // GET /words
     router.get('/', asyncHandler(async (_req: Request, res: Response) => {
         const result = await service.getWords();
         res.status(200).json(result);

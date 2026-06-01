@@ -1,6 +1,6 @@
 ﻿import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
-import AddWordForm from '../pages/AddWordForm';
+import AddWordForm from '../components/forms/AddWordForm';
 
 test('render form', () => {
   render(<AddWordForm />);

@@ -3,7 +3,6 @@ import cors from "cors";
 import cors from "cors";
 import dotenv from "dotenv";
 
-import vocabularyRoutes from "./modules/vocabulary/vocabulary.route";
 import { connectDB, getDB } from "./config/db";
 import {errorHandler} from "./middleware/error.middleware"
 
@@ -16,8 +15,10 @@ import { AiService } from './modules/ai/ai.service';
 import { WordRepository } from './modules/word/word.repo';
 import { WordService } from './modules/word/word.service';
 import { createWordRouter } from './modules/word/word.route';
+import { ReviewRepository } from './modules/review/review.repo';
+import { ReviewService } from './modules/review/review.service';
+import { createReviewRouter } from './modules/review/review.route';
 
-// 1. Cấu hình dotenv PHẢI ĐẶT ĐẦU TIÊN để các biến env có sẵn cho DB và Port
 dotenv.config();
 
 const app = express();
@@ -27,14 +28,8 @@ app.use(cors({
   credentials: true
 }));
 
-// 2. Middleware giải mã JSON phải đặt TRƯỚC các routes
 app.use(express.json());
 
-// 3. Đăng ký Routes
-// Lưu ý: Nếu route của bạn là POST /word, thì path đầy đủ sẽ là http://localhost:PORT/api/word
-app.use("/api", vocabularyRoutes);
-
-// Health route
 app.get("/health", (req, res) => {
   res.status(200).json({ status: "ok" });
 });
@@ -59,7 +54,12 @@ export const startServer = async () => {
   // WORD
   const wordRepo = new WordRepository(db);
   const wordService = new WordService(wordRepo);
-  app.use('/api/word', createWordRouter(wordService));
+  app.use('/api/words', createWordRouter(wordService));
+
+  // REVIEW
+  const reviewRepo = new ReviewRepository(db);
+  const reviewService = new ReviewService(reviewRepo, wordRepo);
+  app.use('/api/reviews', createReviewRouter(reviewService));
 
   app.use(errorHandler);
 
