@@ -14,4 +14,4 @@ app.include_router(embedding_router)
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("ml_server.routers.main:app", host="localhost", port=8000, reload=True)
+    uvicorn.run("ml_server.routers.main:app", host="localhost", port=8002, reload=True)

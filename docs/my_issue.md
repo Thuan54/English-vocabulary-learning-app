@@ -6,7 +6,6 @@
 + Integration test
 - Acceptance Criteria:
 + Endpoint returns explanation
-<<<<<<< HEAD
 + Works without external AI dependency
 
 # Suggest Words Related to a Topic Using Embeddings
@@ -32,6 +31,3 @@ This feature will use embeddings and cosine similarity to match the topic with s
 - System handles at least 1,000 words efficiently (<500ms response time)
 - Feature works for both single-word and multi-word topics
 - No errors occur when user has no words or low matches
-=======
-+ Works without external AI dependency
->>>>>>> ducquan

@@ -28,10 +28,11 @@ export class MlClient {
 
   /**
    * Gọi POST /explain/ của ml_server.
+   * Gửi cả `word` và `text` — ml_server sẽ ưu tiên `text`.
    * @throws AppError 503 nếu ml_server không phản hồi
    */
-  async explainWord(word: string): Promise<{ explanation: string }> {
-    const res = await this.post<ExplainResponse>('/explain/', { word });
+  async explainWord(input: string): Promise<{ explanation: string }> {
+    const res = await this.post<ExplainResponse>('/explain/', { word: input, text: input });
     return { explanation: res.explanation };
   }
 
