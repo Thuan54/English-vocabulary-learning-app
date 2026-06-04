@@ -1,5 +1,4 @@
-
-type Word = any;
+import { Word } from '../../types/review'
 
 type Props = {
   word: Word;
@@ -21,12 +20,7 @@ export function WordItem({ word, expanded, onToggle }: Props) {
 
       {expanded && (
         <div className="mt-3 pt-3 border-t border-gray-100 space-y-2">
-          {word.examples[0] && <p className="text-sm italic text-gray-400">"{word.examples[0]}"</p>}
-          <div className="flex flex-wrap gap-1 mt-2">
-            {word.topics.map((t: string) => <span key={t} className="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full">{t}</span>)}
-            {word.synonyms.map((s: string) => <span key={s} className="text-xs bg-purple-50 text-purple-600 px-2 py-0.5 rounded-full">~{s}</span>)}
-          </div>
-          {word.lastReviewed && <p className="text-xs text-gray-400">Last reviewed: {new Date(word.lastReviewed).toLocaleDateString()}</p>}
+          {word.example && <p className="text-sm italic text-gray-400">"{word.example}"</p>}
         </div>
       )}
     </div>
