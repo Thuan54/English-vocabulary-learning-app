@@ -1,113 +1,132 @@
 import { ObjectId } from 'mongodb';
 import { ReviewRepository } from './review.repo';
-import { ReviewResponseDTO } from './review.dto';
+import { WordService } from '../word/word.service';
+import {
+  CreateReviewResponseDTO,
+  DueReviewDTO,
+  ReviewFeedbackDTO,
+} from './review.dto';
 import { validateString } from '../../utils/validation';
 import { AppError } from '../../middleware/error';
-import { WordRepository } from '../word/word.repo';
 
 export class ReviewService {
   private static readonly MASTERED_EASE = 3.0;
   private static readonly MASTERED_REPETITION = 5;
 
-  constructor(private repo: ReviewRepository, private wordRepo: WordRepository) {}
+  constructor(private reviewRepo: ReviewRepository, private wordService: WordService) {}
 
-  async createReview(rawWordId: unknown, rawNextReview: unknown): Promise<ReviewResponseDTO> {
+  async createReview(rawWordId: unknown): Promise<CreateReviewResponseDTO> {
     const wordId = validateString(rawWordId, 'wordId');
     if (!ObjectId.isValid(wordId)) {
       throw new AppError('Invalid wordId format', 'VALIDATION_ERROR', 400);
     }
 
-    const nextReviewStr = validateString(rawNextReview, 'nextReview');
-    const nextReviewDate = new Date(nextReviewStr);
-    if (isNaN(nextReviewDate.getTime())) {
-      throw new AppError('Invalid nextReview date', 'VALIDATION_ERROR', 400);
+    // Verify word exists
+    const word = await this.wordService.getWordById(wordId);
+    if (!word) {
+      throw new AppError('Word not found', 'NOT_FOUND', 404);
     }
 
-    return this.repo.insert({ wordId: wordId, nextReview: nextReviewStr });
+    // Create review records
+    const {reviewId, nextReview} = await this.reviewRepo.createReview(wordId);
+
+    return {
+      wordId: word.wordId,
+      reviewId: reviewId,
+      word: word.word,
+      meaning: word.meaning,
+      nextReview: nextReview,
+    };
   }
 
-  async getDueReviews(): Promise<any[]> {
-    const reviews = await this.repo.findDueReviews();
-    return reviews.map(r => ({
-      id: r.wordId.toString(),
-      word: r.wordDetails.word,
-      meaning: r.wordDetails.meaning,
-      pronunciation: r.wordDetails.pronunciation || '',
-      examples: r.wordDetails.examples || [],
-      synonyms: r.wordDetails.synonyms || [],
-      topics: r.wordDetails.topics || [],
-      nextReview: r.nextReview,
-      srs: r.srs
-    }));
+  async getDueReviews(): Promise<DueReviewDTO[]> {
+    return this.reviewRepo.findDueReviews();
   }
 
-  async processReview(rawWordId: unknown, rawDifficulty: unknown): Promise<any> {
-    const wordId = validateString(rawWordId, 'wordId');
-    if (!ObjectId.isValid(wordId)) {
-      throw new AppError('Invalid wordId format', 'VALIDATION_ERROR', 400);
+  async processReview(
+    rawWordReviewId: unknown,
+    rawDifficulty: unknown
+  ): Promise<{ message: string }> {
+    const wordReviewId = validateString(rawWordReviewId, 'wordReviewId');
+    if (!ObjectId.isValid(wordReviewId)) {
+      throw new AppError('Invalid wordReviewId format', 'VALIDATION_ERROR', 400);
     }
 
     const difficulty = validateString(rawDifficulty, 'difficulty');
-    const allowedDifficulties = ['easy', 'medium', 'hard', 'forget', 'again'];
+    const allowedDifficulties = ['easy', 'medium', 'hard', 'forget'];
     if (!allowedDifficulties.includes(difficulty)) {
       throw new AppError('Invalid difficulty level', 'VALIDATION_ERROR', 400);
     }
 
-    const review = await this.repo.findByWordId(wordId);
-    let interval = 1;
-    let repetition = 0;
-    let ease = 2.5;
-
-    if (review && review.srs) {
-      interval = review.srs.interval || 1;
-      repetition = review.srs.repetition || 0;
-      ease = review.srs.ease || 2.5;
+    // Get current word review
+    const wordReview = await this.reviewRepo.getWordReviewById(wordReviewId);
+    if (!wordReview) {
+      throw new AppError('Word review not found', 'NOT_FOUND', 404);
     }
 
-    if (difficulty === 'forget' || difficulty === 'again') {
-      repetition = 0;
-      interval = 0;
-    } else {
-      if (repetition === 0) {
-        interval = 1;
-      } else if (repetition === 1) {
-        interval = 6;
-      } else {
-        interval = Math.round(interval * ease);
-      }
-      repetition++;
-    }
+    // Calculate SRS metrics
+    const srsUpdate = this.calculateSRS(
+      wordReview.interval,
+      wordReview.repetition,
+      wordReview.ease,
+      difficulty as 'easy' | 'medium' | 'hard' | 'forget'
+    );
 
-    if (difficulty === 'easy') ease += 0.15;
-    else if (difficulty === 'hard') ease -= 0.15;
-    if (ease < 1.3) ease = 1.3;
-
+    // Update word_review
     const nextReview = new Date();
-    nextReview.setDate(nextReview.getDate() + interval);
+    nextReview.setDate(nextReview.getDate() + srsUpdate.interval);
 
-    const doc = {
-      wordId: new ObjectId(wordId),
+    await this.reviewRepo.updateWordReview(wordReviewId, {
       nextReview,
-      srs: { interval, repetition, ease },
-      createdAt: new Date()
-    };
+      interval: srsUpdate.interval,
+      ease: srsUpdate.ease,
+      repetition: srsUpdate.repetition,
+    });
 
-    const isMastered = ease >= ReviewService.MASTERED_EASE && repetition >= ReviewService.MASTERED_REPETITION;
-    const wordUpdate = {
-      category: isMastered ? 'learned' : 'want-to-learn',
-      reviewCount: repetition,
-      nextReview,
-      lastReviewed: new Date()
-    };
+    // Record the review
+    await this.reviewRepo.recordReview(wordReviewId);
 
-    if (review) {
-      await this.repo.updateReview(review._id.toString(), doc);
+    return { message: 'Review processed successfully' };
+  }
+
+  private calculateSRS(
+    interval: number,
+    repetition: number,
+    ease: number,
+    difficulty: 'easy' | 'medium' | 'hard' | 'forget'
+  ): { interval: number; repetition: number; ease: number } {
+    let newInterval = interval;
+    let newRepetition = repetition;
+    let newEase = ease;
+
+    if (difficulty === 'forget') {
+      newRepetition = 0;
+      newInterval = 0;
     } else {
-      await this.repo.insertRaw(doc);
+      if (newRepetition === 0) {
+        newInterval = 1;
+      } else if (newRepetition === 1) {
+        newInterval = 6;
+      } else {
+        newInterval = Math.round(newInterval * newEase);
+      }
+      newRepetition++;
     }
 
-    await this.wordRepo.updateReviewData(wordId, wordUpdate);
+    if (difficulty === 'easy') {
+      newEase += 0.15;
+    } else if (difficulty === 'hard') {
+      newEase -= 0.15;
+    }
 
-    return { message: 'Review submitted successfully', nextReview };
+    if (newEase < 1.3) {
+      newEase = 1.3;
+    }
+
+    return {
+      interval: newInterval,
+      repetition: newRepetition,
+      ease: newEase,
+    };
   }
 }
