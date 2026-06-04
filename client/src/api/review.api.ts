@@ -1,17 +1,19 @@
-export async function fetchDueCards() {
+import { DueReview } from "../types/review"
 
-  const res = await fetch("api/reviews/due");
+export async function fetchDueCards() : Promise<DueReview[]> {
+
+  const res = await fetch("api/reviews/due")
 
   if (!res.ok) {
-    throw new Error("Failed to fetch cards");
+    throw new Error("Failed to fetch cards")
   }
 
-  return res.json();
+  return res.json()
 }
 
-export async function submitReview(wordId: string, difficulty: string) {
+export async function submitReview(wordReviewId: string, difficulty: string) {
 
-  const res = await fetch("api/reviews", {
+  const res = await fetch("api/reviews/feedback", {
 
     method: "POST",
 
@@ -20,8 +22,8 @@ export async function submitReview(wordId: string, difficulty: string) {
     },
 
     body: JSON.stringify({
-      wordId,
-      difficulty
+      wordReviewId: wordReviewId,
+      difficulty: difficulty
     })
 
   });
