@@ -5,7 +5,7 @@ import { WordService } from './word.service';
 export const createWordRouter = (service: WordService) => {
     const router = Router();
 
-    // POST /word
+    // POST /words
     router.post('/', asyncHandler(async (req: Request, res: Response) => {
         const result = await service.createWord(req.body);
         res.status(201).json(result);

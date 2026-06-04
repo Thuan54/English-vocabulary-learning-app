@@ -56,19 +56,20 @@ export const startServer = async () => {
   const aiService = new AiService(mlClient);
   app.use('/api/ai', createAiRouter(aiService));
   console.log(`ML Server URL: ${ML_SERVER_URL}`);
-
-  // WORD
+  
+  // Review Word repo
   const wordRepo = new WordRepository(db);
-  const wordService = new WordService(wordRepo);
+  const reviewRepo = new ReviewRepository(db);
+  
+  // WORD
+  const wordService = new WordService(wordRepo, reviewRepo);
   app.use('/api/words', createWordRouter(wordService));
-
+  
   // REVIEW
-  const reviewRepo = new ReviewRepository(db, wordService);
-  const reviewService = new ReviewService(reviewRepo, wordService);
+  const reviewService = new ReviewService(reviewRepo, wordRepo);
   app.use('/api/reviews', createReviewRouter(reviewService));
-
+  
   // Search
-
   const dictService = new DictService()
   app.use('/api/search', createDictRouter(dictService))
 
