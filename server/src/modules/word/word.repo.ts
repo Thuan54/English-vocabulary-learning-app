@@ -19,7 +19,7 @@ export class WordRepository {
         const result = await this.collection.insertOne(doc);
 
         return {
-            wordid: result.insertedId.toString(),
+            wordId: result.insertedId.toString(),
             ...doc
         };
     }
@@ -28,7 +28,7 @@ export class WordRepository {
         const docs = await this.collection.find<WordMongoDocument>({}).toArray();
 
         return docs.map((d) => ({
-            wordid: d._id.toString(),
+            wordId: d._id.toString(),
             word: d.word,
             meaning: d.meaning,
             pronunciation: d.pronunciation,
@@ -42,7 +42,7 @@ export class WordRepository {
         if (!doc) return null;
 
         return {
-            wordid: doc._id.toString(),
+            wordId: doc._id.toString(),
             word: doc.word,
             meaning: doc.meaning,
             pronunciation: doc.pronunciation,

@@ -16,7 +16,7 @@ export type CreateReviewInputDTO = {
 
 // Output DTO for review creation
 export type CreateReviewResponseDTO = WordInReview & {
-  reviewId: string;
+  wordReviewId: string;
   nextReview: Date;
 }
 
@@ -29,7 +29,7 @@ export type ReviewFeedbackDTO = {
 // Word Review MongoDB document (maps to word_review table)
 export type WordReviewDocument = {
   _id?: ObjectId;
-  reviewId: ObjectId;
+  reviewId?: ObjectId | null;
   wordId: ObjectId;
   nextReview: Date;
   interval: number;
@@ -39,7 +39,7 @@ export type WordReviewDocument = {
 
 // Review Record MongoDB document (maps to review_records table)
 export type ReviewRecordDocument = {
-  _id?: ObjectId;
+  wordId: ObjectId,
   reviewed_at: Date;
 }
 
