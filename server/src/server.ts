@@ -59,7 +59,7 @@ export const startServer = async () => {
   app.use('/api/words', createWordRouter(wordService));
 
   // REVIEW
-  const reviewRepo = new ReviewRepository(db);
+  const reviewRepo = new ReviewRepository(db, wordService);
   const reviewService = new ReviewService(reviewRepo, wordService);
   app.use('/api/reviews', createReviewRouter(reviewService));
 
