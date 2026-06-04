@@ -1,9 +1,9 @@
 import { Volume2, BookmarkPlus, Check } from 'lucide-react';
+import { Word } from '../../types/review';
 
-type WordType = any;
 
 type Props = {
-  selectedWord: WordType | null;
+  selectedWord: Omit<Word,"wordId"> | null;
   isSaved?: boolean;
   onAdd?: () => void;
 };
@@ -32,18 +32,9 @@ export function WordDetails({ selectedWord, isSaved, onAdd }: Props) {
 
       <div>
         <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Example Sentences</h3>
-        <div className="space-y-3">{selectedWord.examples.map((ex: string, i: number) => <div key={i} className="bg-blue-50 rounded-xl p-4 border-l-4 border-blue-500"><p className="text-gray-700">{ex}</p></div>)}</div>
+        <div className="space-y-3">{selectedWord.example?? "No example yet"}</div>
       </div>
 
-      <div>
-        <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Synonyms</h3>
-        <div className="flex flex-wrap gap-2">{selectedWord.synonyms.map((s: string, i: number) => <button key={i} className="px-4 py-2 bg-purple-100 text-purple-700 rounded-full hover:bg-purple-200 transition-colors font-medium">{s}</button>)}</div>
-      </div>
-
-      <div>
-        <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Topics</h3>
-        <div className="flex flex-wrap gap-2">{selectedWord.topics.map((t: string, i: number) => <span key={i} className="px-4 py-2 bg-green-100 text-green-700 rounded-full font-medium">{t}</span>)}</div>
-      </div>
     </div>
   );
 }
