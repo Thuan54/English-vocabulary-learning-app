@@ -18,6 +18,8 @@ import { createWordRouter } from './modules/word/word.route';
 import { ReviewRepository } from './modules/review/review.repo';
 import { ReviewService } from './modules/review/review.service';
 import { createReviewRouter } from './modules/review/review.route';
+import { DictService } from "./modules/dictionary/dict.service";
+import { createDictRouter } from "./modules/dictionary/dict.route";
 
 dotenv.config();
 
@@ -58,8 +60,13 @@ export const startServer = async () => {
 
   // REVIEW
   const reviewRepo = new ReviewRepository(db);
-  const reviewService = new ReviewService(reviewRepo, wordRepo);
+  const reviewService = new ReviewService(reviewRepo, wordService);
   app.use('/api/reviews', createReviewRouter(reviewService));
+
+  // Search
+
+  const dictService = new DictService()
+  app.use('/api/search', createDictRouter(dictService))
 
   app.use(errorHandler);
 
