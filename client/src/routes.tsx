@@ -3,7 +3,6 @@ import { Review } from "./pages/Review";
 import { LearnedWordsPage } from "./pages/LearnedWordsPage"; 
 import { Dashboard } from "./pages/Dashboard";
 import { VocabularySearch } from "./pages/VocabularySearch";
-
 import { Layout } from "./components/Layout";
 
 export const router = createBrowserRouter([

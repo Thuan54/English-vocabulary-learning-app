@@ -1,6 +1,7 @@
 node_modules/
 coverage/
 SCHEMA.md
+*.md
 .env
 dist/
 # Logs
@@ -11,7 +12,8 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
-
+my_note.md
+my_issue.md
 node_modules
 dist
 dist-ssr

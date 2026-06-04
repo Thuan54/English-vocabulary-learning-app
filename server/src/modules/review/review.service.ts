@@ -8,6 +8,7 @@ import {
 } from './review.dto';
 import { validateString } from '../../utils/validation';
 import { AppError } from '../../middleware/error';
+import { WordRepository } from '../word/word.repo';
 
 export class ReviewService {
   private static readonly MASTERED_EASE = 3.0;

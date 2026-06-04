@@ -100,6 +100,59 @@ export function VocabularySearch() {
     }
   };
 
+  const handleSendMessage = async (content: string, wordContext?: string) => {
+    const currentWord = wordContext || searchedWord;
+    if (!currentWord) return;
+    
+    const userMessage: ChatMessage = { role: 'user', content };
+    const newHistory = [...chatHistory, userMessage];
+    
+    setChatHistory(newHistory);
+    setChatInput("");
+    setIsChatLoading(true);
+
+    try {
+      // Pass the word context and the full history to maintain conversation flow
+      const response = await chatWithAi(currentWord, newHistory);
+      const aiMessage: ChatMessage = { role: 'assistant', content: response };
+      setChatHistory(prev => [...prev, aiMessage]);
+    } catch (error) {
+      const errorMessage: ChatMessage = { 
+        role: 'assistant', 
+        content: "Sorry, I encountered an error connecting to the AI. Please try again." 
+      };
+      setChatHistory(prev => [...prev, errorMessage]);
+    } finally {
+      setIsChatLoading(false);
+    }
+  };
+
+  const handleAskAi = () => {
+    const term = searchTerm.toLowerCase().trim();
+    if (!term) return;
+
+    let isNewWord = false;
+    if (term !== searchedWord) {
+      clearAiState();
+      setSearchedWord(term);
+      isNewWord = true;
+    }
+    
+    setIsAiChatOpen(true);
+    
+    // Auto-send an initial prompt if starting a fresh chat for this word
+    if (isNewWord || chatHistory.length === 0) {
+      handleSendMessage(
+        `Can you explain the word "${term}"? Include its meaning, pronunciation, and some example sentences.`, 
+        term
+      );
+    }
+  };
+
+  const isWordSaved = selectedWord
+    ? words.some((w) => w.word.toLowerCase() === selectedWord.word.toLowerCase())
+    : false;
+
   const handleAddWord = () => {
     if (selectedWord) {
       const newWord = {word: selectedWord.word, meaning: selectedWord.meaning};
