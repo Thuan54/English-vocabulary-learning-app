@@ -1,5 +1,7 @@
+import { Word } from "../types/review";
+
 export const addWordAPI = async (word: string, meaning: string) => {
-    const res = await fetch('/api/word', {
+    const res = await fetch('/api/words', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -15,35 +17,8 @@ export const addWordAPI = async (word: string, meaning: string) => {
     return res.json();
 };
 
-import { Word } from "../types/word";
-
-export async function fetchWordsFromApi(): Promise<Word[]> {
-  const res = await fetch("/api/words");
-  if (!res.ok) {
-    throw new Error("Failed to fetch words");
-  }
-
-  const data = await res.json();
-  if (!Array.isArray(data)) return [];
-
-  return data.map((item: any) => ({
-    id: item._id || item.id,
-    word: item.word,
-    meaning: item.meaning,
-    pronunciation: item.pronunciation || "",
-    examples: item.examples || [],
-    synonyms: item.synonyms || [],
-    topics: item.topics || [],
-    category: item.category || "want-to-learn",
-    addedDate: item.createdAt ? new Date(item.createdAt) : new Date(),
-    lastReviewed: item.lastReviewed ? new Date(item.lastReviewed) : undefined,
-    reviewCount: item.reviewCount || 0,
-    nextReview: item.nextReview ? new Date(item.nextReview) : undefined,
-  }));
-}
-
-export async function fetchWordSearch(word: string): Promise<Word> {
-  const res = await fetch(`/api/words?q=${encodeURIComponent(word)}`);
+export async function fetchWordSearch(word: string): Promise<Omit<Word,"wordId">> {
+  const res = await fetch(`/api/search/word?q=${encodeURIComponent(word)}`);
 
   if (!res.ok) {
     const body = await res.json().catch(() => null);
@@ -54,17 +29,7 @@ export async function fetchWordSearch(word: string): Promise<Word> {
   const item = await res.json();
 
   return {
-    id: item._id || item.id,
     word: item.word,
     meaning: item.meaning,
-    pronunciation: item.pronunciation || "",
-    examples: item.examples || [],
-    synonyms: item.synonyms || [],
-    topics: item.topics || [],
-    category: item.category || "want-to-learn",
-    addedDate: item.createdAt ? new Date(item.createdAt) : new Date(),
-    lastReviewed: item.lastReviewed ? new Date(item.lastReviewed) : undefined,
-    reviewCount: item.reviewCount || 0,
-    nextReview: item.nextReview ? new Date(item.nextReview) : undefined,
   };
 }
