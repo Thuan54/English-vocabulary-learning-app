@@ -1,19 +1,19 @@
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from 'framer-motion';
+import { DueReview } from '../../types/review';
 
 type Props = {
-  currentWord: any;
+  word?: DueReview | null;
   isFlipped: boolean;
   onFlip: () => void;
 };
 
-export default function Flashcard({ currentWord, isFlipped, onFlip }: Props) {
-  if (!currentWord) return null;
-
+export function Flashcard({ word, isFlipped, onFlip }: Props) {
+  if (!word) return null;
   return (
     <div className="perspective-1000 mb-8">
       <AnimatePresence mode="wait">
         <motion.div
-          key={currentWord.id + (isFlipped ? "-back" : "-front")}
+          key={word.wordId + (isFlipped ? "-back" : "-front")}
           initial={{ rotateY: isFlipped ? -90 : 90, opacity: 0 }}
           animate={{ rotateY: 0, opacity: 1 }}
           exit={{ rotateY: isFlipped ? 90 : -90, opacity: 0 }}
@@ -25,14 +25,14 @@ export default function Flashcard({ currentWord, isFlipped, onFlip }: Props) {
             {!isFlipped ? (
               <div className="text-center">
                 <p className="text-sm text-gray-500 mb-4 uppercase tracking-wide">Word</p>
-                <h2 className="text-6xl font-bold text-gray-800 mb-4">{currentWord.word}</h2>
-                <p className="text-xl text-gray-500 mb-8">{currentWord.pronunciation}</p>
+                <h2 className="text-6xl font-bold text-gray-800 mb-4">{word.word}</h2>
+                <p className="text-xl text-gray-500 mb-8">{word.pronunciation}</p>
                 <p className="text-sm text-purple-600 font-medium">Click to reveal meaning</p>
               </div>
             ) : (
               <div className="w-full">
                 <p className="text-sm text-gray-500 mb-4 uppercase tracking-wide">Meaning</p>
-                <p className="text-2xl text-gray-800 mb-6">{currentWord.meaning}</p>
+                <p className="text-2xl text-gray-800 mb-6">{word.meaning}</p>
               </div>
             )}
           </div>
@@ -41,3 +41,5 @@ export default function Flashcard({ currentWord, isFlipped, onFlip }: Props) {
     </div>
   );
 }
+
+export default Flashcard;

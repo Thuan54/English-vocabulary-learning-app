@@ -1,4 +1,3 @@
-import { useVocabulary } from "../contexts/VocabularyContext";
 import { BookOpen, Target, TrendingUp, Calendar, CheckCircle2, Clock } from "lucide-react";
 import { Link } from "react-router";
 
@@ -13,11 +12,6 @@ const progressData = [
 ];
 
 export function Dashboard() {
-  const { words, totalLearned, reviewDue, streak } = useVocabulary();
-
-  const todayWords = words
-    .filter(w => w.nextReview && new Date(w.nextReview).toDateString() === new Date().toDateString())
-    .slice(0, 3);
 
   return (
     <div className="p-8 space-y-6">
@@ -34,7 +28,6 @@ export function Dashboard() {
           <div className="flex items-start justify-between">
             <div>
               <p className="text-gray-600 text-sm">Words Learned</p>
-              <p className="text-4xl font-bold text-blue-600 mt-2">{totalLearned}</p>
               <p className="text-green-600 text-sm mt-2 flex items-center gap-1">
                 <TrendingUp className="w-4 h-4" />
                 +12% this week
@@ -50,8 +43,6 @@ export function Dashboard() {
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-gray-600 text-sm">Review Due</p>
-              <p className="text-4xl font-bold text-purple-600 mt-2">{reviewDue}</p>
               <Link to="/review" className="text-purple-600 text-sm mt-2 inline-flex items-center gap-1 hover:underline">
                 Start reviewing →
               </Link>

@@ -1,12 +1,11 @@
-import ProgressBar from "./ProgressBar";
 
 type Props = {
-  currentIndex: number;
+  current: number;
   total: number;
 };
 
-export default function ReviewHeader({ currentIndex, total }: Props) {
-  const progress = total > 0 ? ((currentIndex + 1) / total) * 100 : 0;
+export function ReviewHeader({ current, total }: Props) {
+  const percent = total === 0 ? 0 : ((current + 1) / total) * 100;
 
   return (
     <div className="mb-8">
@@ -18,11 +17,18 @@ export default function ReviewHeader({ currentIndex, total }: Props) {
 
         <div className="text-right">
           <p className="text-sm text-gray-600">Progress</p>
-          <p className="text-2xl font-bold text-purple-600">{currentIndex + 1} / {total}</p>
+          <p className="text-2xl font-bold text-purple-600">{current + 1} / {total}</p>
         </div>
       </div>
 
-      <ProgressBar progress={progress} />
+      <div className="w-full bg-gray-200 rounded-full h-3">
+        <div
+          className="bg-gradient-to-r from-blue-500 to-purple-500 h-3 rounded-full transition-all duration-300"
+          style={{ width: `${percent}%` }}
+        />
+      </div>
     </div>
   );
 }
+
+export default ReviewHeader;

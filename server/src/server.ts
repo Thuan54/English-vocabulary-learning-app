@@ -1,6 +1,7 @@
 import express from "express";
+import cors from "cors";
 import dotenv from "dotenv";
-import vocabularyRoutes from "./modules/vocabulary/vocabulary.route";
+
 import { connectDB, getDB } from "./config/db";
 import { errorHandler } from "./middleware/error.middleware";
 
@@ -12,27 +13,29 @@ import { MlClient } from './modules/ai/ml.client';
 import { AiService } from './modules/ai/ai.service';
 import { createAiRouter } from './modules/ai/ai.route';
 
+import { WordRepository } from './modules/word/word.repo';
+import { WordService } from './modules/word/word.service';
+import { createWordRouter } from './modules/word/word.route';
 import { ReviewRepository } from './modules/review/review.repo';
 import { ReviewService } from './modules/review/review.service';
 import { createReviewRouter } from './modules/review/review.route';
+import { DictService } from "./modules/dictionary/dict.service";
+import { createDictRouter } from "./modules/dictionary/dict.route";
 
-// 1. Cấu hình dotenv PHẢI ĐẶT ĐẦU TIÊN để các biến env có sẵn cho DB và Port
 dotenv.config();
 
 const app = express();
 
-// 2. Middleware giải mã JSON phải đặt TRƯỚC các routes
+app.use(cors({
+  origin: true,
+  credentials: true
+}));
+
 app.use(express.json());
 
-// 3. Routes không cần DB
-app.use("/api", vocabularyRoutes);
-
-// Health route
 app.get("/health", (req, res) => {
   res.status(200).json({ status: "ok" });
 });
-
-app.use(errorHandler);
 
 const PORT = process.env.PORT || 3000;
 const ML_SERVER_URL = process.env.ML_SERVER_URL || 'http://localhost:8001';
@@ -54,6 +57,26 @@ export const startServer = async () => {
   app.use('/api/ai', createAiRouter(aiService));
   console.log(`ML Server URL: ${ML_SERVER_URL}`);
 
+  // WORD
+  const wordRepo = new WordRepository(db);
+  const wordService = new WordService(wordRepo);
+  app.use('/api/words', createWordRouter(wordService));
+
+  // REVIEW
+  const reviewRepo = new ReviewRepository(db, wordService);
+  const reviewService = new ReviewService(reviewRepo, wordService);
+  app.use('/api/reviews', createReviewRouter(reviewService));
+
+  // Search
+
+  const dictService = new DictService()
+  app.use('/api/search', createDictRouter(dictService))
+
+  app.use(errorHandler);
+
+  app.listen(PORT, () => {
+    console.log(`http://localhost:${PORT}`);
+  });
 };
 
 export default app;

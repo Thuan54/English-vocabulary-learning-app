@@ -1,9 +1,8 @@
 import { createBrowserRouter } from "react-router";
 import { Review } from "./pages/Review";
+import { LearnedWordsPage } from "./pages/LearnedWordsPage"; 
 import { Dashboard } from "./pages/Dashboard";
 import { VocabularySearch } from "./pages/VocabularySearch";
-import { RelatedWordsPage } from "./pages/RelatedWord";
-import { PdfExplain } from "./pages/PdfExplain";
 import { Layout } from "./components/Layout";
 
 export const router = createBrowserRouter([
@@ -13,9 +12,8 @@ export const router = createBrowserRouter([
     children: [
       { index: true, Component: Dashboard },
       { path: "review", Component: Review },
+      { path: "learned", Component: LearnedWordsPage }, 
       { path: "search", Component: VocabularySearch },
-      { path: "relate", Component: RelatedWordsPage },
-      { path: "pdf", Component: PdfExplain },
     ],
   },
 ]);

@@ -47,6 +47,14 @@ const renderWithProvider = (component: React.ReactElement) => {
 };
 
 describe('Review Component', () => {
+  beforeAll(() => {
+    (window as any).fetch = jest.fn().mockImplementation(() =>
+      Promise.resolve({
+        json: () => Promise.resolve([]),
+      })
+    ) as any;
+  });
+
   beforeEach(() => {
     jest.clearAllMocks();
   });
