@@ -1,23 +1,25 @@
+// Input DTO for creating a word
 export interface WordInputDTO {
     word: string;
     meaning: string;
-    synonyms?: string[];
-    topics?: string[];
-    category?: string;
-    reviewCount?: number;
-    nextReview?: Date;
-    lastReviewed?: Date;
+    pronunciation?: string;
+    example?: string;
 }
 
+// Output DTO for word responses
 export interface WordResponseDTO {
-    id: string;
+    wordId: string;
     word: string;
     meaning: string;
-    synonyms: string[];
-    topics: string[];
-    category?: string;
-    reviewCount?: number;
-    nextReview?: Date;
-    lastReviewed?: Date;
-    createdAt: Date;
+    pronunciation: string;
+    example: string;
+}
+
+// MongoDB document representation
+export interface WordMongoDocument {
+    _id: any;
+    word: string;
+    meaning: string;
+    pronunciation: string;
+    example: string;
 }

@@ -7,7 +7,11 @@ export class StatsRepository {
     return this.db.collection('words').countDocuments();
   }
 
-  async countReviews(): Promise<number> {
-    return this.db.collection('reviews').countDocuments();
+  async countWordReviews(): Promise<number> {
+    return this.db.collection('word_review').countDocuments();
+  }
+
+  async countReviewRecords(): Promise<number> {
+    return this.db.collection('review_records').countDocuments();
   }
 }

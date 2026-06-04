@@ -1,5 +1,5 @@
 import { Db, ObjectId, Collection } from 'mongodb';
-import { WordInputDTO, WordResponseDTO } from './word.dto';
+import { WordInputDTO, WordResponseDTO, WordMongoDocument } from './word.dto';
 
 export class WordRepository {
     private collection: Collection;
@@ -9,44 +9,44 @@ export class WordRepository {
     }
 
     async insert(dto: WordInputDTO): Promise<WordResponseDTO> {
-        const doc = {
+        const doc: Omit<WordMongoDocument,"_id"> = {
             word: dto.word,
             meaning: dto.meaning,
-            synonyms: dto.synonyms || [],
-            topics: dto.topics || [],
-            category: dto.category ?? 'want-to-learn',
-            reviewCount: dto.reviewCount ?? 0,
-            nextReview: dto.nextReview,
-            lastReviewed: dto.lastReviewed,
-            createdAt: new Date()
+            pronunciation: dto.pronunciation?? "",
+            example: dto.example?? ""
         };
 
         const result = await this.collection.insertOne(doc);
 
         return {
-            id: result.insertedId.toString(),
+            wordid: result.insertedId.toString(),
             ...doc
         };
     }
 
     async getAll(): Promise<WordResponseDTO[]> {
-        const docs = await this.collection.find().toArray();
+        const docs = await this.collection.find<WordMongoDocument>({}).toArray();
 
-        return docs.map((d: any) => ({
-            id: d._id.toString(),
+        return docs.map((d) => ({
+            wordid: d._id.toString(),
             word: d.word,
             meaning: d.meaning,
-            synonyms: d.synonyms || [],
-            topics: d.topics || [],
-            category: d.category || 'want-to-learn',
-            reviewCount: d.reviewCount ?? 0,
-            nextReview: d.nextReview,
-            lastReviewed: d.lastReviewed,
-            createdAt: d.createdAt
+            pronunciation: d.pronunciation,
+            example: d.example
         }));
     }
 
-    async updateReviewData(wordId: string, updates: Partial<{ category: string; reviewCount: number; nextReview: Date; lastReviewed: Date }>): Promise<void> {
-        await this.collection.updateOne({ _id: new ObjectId(wordId) }, { $set: updates });
+    async getById(wordId: string): Promise<WordResponseDTO | null> {
+        const doc = await this.collection.findOne<WordMongoDocument>({ _id: new ObjectId(wordId) });
+        
+        if (!doc) return null;
+
+        return {
+            wordid: doc._id.toString(),
+            word: doc.word,
+            meaning: doc.meaning,
+            pronunciation: doc.pronunciation,
+            example: doc.example
+        };
     }
 }
