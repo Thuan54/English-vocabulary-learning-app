@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
-import { useVocabulary } from "../contexts/VocabularyContext";
-import { Word } from "../types/word";
 import confetti from "canvas-confetti";
 import { fetchDueCards, submitReview } from "../api/review.api";
+import { DueReview } from "../types/review";
 
 import ReviewHeader from "../components/review/ReviewHeader";
 import Flashcard from "../components/review/Flashcard";
@@ -11,12 +10,10 @@ import CompletedView from "../components/review/CompletedView";
 
 export function Review() {
 
-  const { words } = useVocabulary();
-
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [isFlipped, setIsFlipped] = useState(false);
 
-  const [reviewWords, setReviewWords] = useState<Word[]>([]);
+  const [reviewWords, setReviewWords] = useState<DueReview[]>([]);
 
   const [knownCount, setKnownCount] = useState(0);
   const [unknownCount, setUnknownCount] = useState(0);
@@ -27,23 +24,16 @@ export function Review() {
   const loadCards = async () => {
     setIsLoading(true);
     try {
-      const data = await fetchDueCards();
+      const data : DueReview[] = await fetchDueCards();
 
       if (Array.isArray(data)) {
         setReviewWords(data);
-      } else {
-        setReviewWords(
-          words.filter(
-            (w: Word) => w.nextReview && new Date(w.nextReview) <= new Date()
-          )
-        );
       }
     } catch (err) {
-      setReviewWords(
-        words.filter(
-          (w: Word) => w.nextReview && new Date(w.nextReview) <= new Date()
-        )
-      );
+      console.error("Failed to load review cards:", err);
+      // Fallback: filter words locally
+
+      
     } finally {
       setIsLoading(false);
     }
@@ -51,7 +41,7 @@ export function Review() {
 
   useEffect(() => {
     loadCards();
-  }, [words]);
+  }, []);
 
   useEffect(() => {
     if (!isLoading && reviewWords.length === 0 && !isComplete) {
@@ -82,12 +72,12 @@ export function Review() {
     if (!currentWord) return;
 
     try {
-      await submitReview(currentWord.id, difficulty);
+      await submitReview(currentWord.wordReviewId, difficulty);
     } catch (err) {
       console.log("API error fallback local");
     }
 
-    if (difficulty === "forget" || difficulty === "again") {
+    if (difficulty === "forget") {
       setUnknownCount(prev => prev + 1);
     } else {
       setKnownCount(prev => prev + 1);
