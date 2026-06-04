@@ -1,10 +1,8 @@
 import { ObjectId } from 'mongodb';
 import { ReviewRepository } from './review.repo';
-import { WordService } from '../word/word.service';
 import {
   CreateReviewResponseDTO,
   DueReviewDTO,
-  ReviewFeedbackDTO,
 } from './review.dto';
 import { validateString } from '../../utils/validation';
 import { AppError } from '../../middleware/error';
@@ -14,7 +12,7 @@ export class ReviewService {
   private static readonly MASTERED_EASE = 3.0;
   private static readonly MASTERED_REPETITION = 5;
 
-  constructor(private reviewRepo: ReviewRepository, private wordService: WordService) {}
+  constructor(private reviewRepo: ReviewRepository, private wordRepo: WordRepository) {}
 
   async createReview(rawWordId: unknown): Promise<CreateReviewResponseDTO> {
     const wordId = validateString(rawWordId, 'wordId');
@@ -23,17 +21,17 @@ export class ReviewService {
     }
 
     // Verify word exists
-    const word = await this.wordService.getWordById(wordId);
+    const word = await this.wordRepo.getById(wordId);
     if (!word) {
       throw new AppError('Word not found', 'NOT_FOUND', 404);
     }
 
     // Create review records
-    const {reviewId, nextReview} = await this.reviewRepo.createReview(wordId);
+    const {wordReviewId, nextReview} = await this.reviewRepo.createReview(wordId);
 
     return {
       wordId: word.wordId,
-      reviewId: reviewId,
+      wordReviewId: wordReviewId,
       word: word.word,
       meaning: word.meaning,
       nextReview: nextReview,
@@ -77,15 +75,17 @@ export class ReviewService {
     const nextReview = new Date();
     nextReview.setDate(nextReview.getDate() + srsUpdate.interval);
 
+    // Record the review
+    const reviewId = await this.reviewRepo.recordReview(wordReview.wordId);
+
     await this.reviewRepo.updateWordReview(wordReviewId, {
+      reviewId,
       nextReview,
       interval: srsUpdate.interval,
       ease: srsUpdate.ease,
       repetition: srsUpdate.repetition,
     });
 
-    // Record the review
-    await this.reviewRepo.recordReview(wordReviewId);
 
     return { message: 'Review processed successfully' };
   }

@@ -9,39 +9,32 @@ import { WordResponseDTO } from '../word/word.dto';
 import { WordService } from '../word/word.service';
 
 export class ReviewRepository {
-  private wordService: WordService;
   private wordReviewCollection: Collection;
   private reviewRecordsCollection: Collection;
 
-  constructor(db: Db, wordService: WordService) {
-    this.wordService = wordService;
+  constructor(db: Db) {
     this.wordReviewCollection = db.collection('word_review');
     this.reviewRecordsCollection = db.collection('review_records');
   }
 
   // Create a review record and word_review entry
   async createReview(wordId: string)
-    : Promise<{reviewId: string, nextReview: Date}> {
+    : Promise<{wordReviewId: string, nextReview: Date}> {
 
-    // Create review_records entry
-    const reviewRecord: ReviewRecordDocument = {
-      reviewed_at: new Date(),
-    };
-    const reviewResult = await this.reviewRecordsCollection.insertOne(reviewRecord);
-    const reviewId = reviewResult.insertedId.toString();
+    const reviewId = null;
 
     // Create word_review entry
     const wordReview: WordReviewDocument = {
-      reviewId: new ObjectId(reviewId),
+      reviewId: null,
       wordId: new ObjectId(wordId),
       nextReview: new Date(),
       interval: 1,
       ease: 2.5,
       repetition: 0,
     };
-    const wordReviewResult = await this.wordReviewCollection.insertOne(wordReview);
+    const res = await this.wordReviewCollection.insertOne(wordReview);
 
-    return {reviewId: reviewId, nextReview: wordReview.nextReview};
+    return {wordReviewId: res.insertedId.toString(),nextReview: wordReview.nextReview};
   }
 
   // Get word review by ID
@@ -51,13 +44,13 @@ export class ReviewRepository {
 
   // Get all due reviews (where nextReview <= now and not mastered)
   async findDueReviews(): Promise<DueReviewDTO[]> {
-  const date10_6 = new Date("2026-10-06T00:00:00Z");
+  const now = new Date();
 
   const result = this.wordReviewCollection
     .aggregate<DueReviewDTO>([
       {
         $match: {
-          nextReview: { $lte: date10_6 },
+          nextReview: { $lte: now },
           $or: [
             { repetition: { $lt: 5 } },
             { ease: { $lt: 3.0 } }
@@ -87,6 +80,7 @@ export class ReviewRepository {
       }
     ])
     .toArray();
+  if(!result) return []
   return result;
 }
 
@@ -94,6 +88,7 @@ export class ReviewRepository {
   async updateWordReview(
     wordReviewId: string,
     updates: {
+      reviewId: ObjectId,
       nextReview: Date;
       interval: number;
       ease: number;
@@ -107,12 +102,13 @@ export class ReviewRepository {
   }
 
   // Create a review_record entry
-  async recordReview(wordReviewId: string): Promise<void> {
+  async recordReview(wordId: ObjectId): Promise<ObjectId> {
     const reviewRecord: ReviewRecordDocument = {
-      _id: new ObjectId(wordReviewId),
+      wordId: wordId,
       reviewed_at: new Date(),
     };
-    await this.reviewRecordsCollection.insertOne(reviewRecord);
+    const res = await this.reviewRecordsCollection.insertOne(reviewRecord);
+    return res.insertedId;
   }
 
   // Get review history count for stats
