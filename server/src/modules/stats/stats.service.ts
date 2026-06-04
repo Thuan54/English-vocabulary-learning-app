@@ -4,10 +4,15 @@ export class StatsService {
   constructor(private repo: StatsRepository) {}
 
   async getStats() {
-    const [words, reviews] = await Promise.all([
+    const [words, wordReviews, reviewRecords] = await Promise.all([
       this.repo.countWords(),
-      this.repo.countReviews(),
+      this.repo.countWordReviews(),
+      this.repo.countReviewRecords(),
     ]);
-    return { words, reviews };
+    return {
+      totalWords: words,
+      totalWordReviews: wordReviews,
+      totalReviewRecords: reviewRecords,
+    };
   }
 }
