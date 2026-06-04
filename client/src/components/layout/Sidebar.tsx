@@ -4,19 +4,15 @@ import {
   Search,
   Network,
   BookOpen,
-  Flame
 } from "lucide-react";
-import StreakCard from "./StreakCard";
-import { useVocabulary } from "../../contexts/VocabularyContext";
 
 export default function Sidebar() {
   const location = useLocation();
-  const { streak } = useVocabulary();
 
   const navItems = [
     { path: "/", icon: Home, label: "Dashboard" },
     { path: "/search", icon: Search, label: "Search" },
-    { path: "/relate", icon: Network, label: "Related Words" },
+    { path: "/learned", icon: Network, label: "Related Words" },
     { path: "/review", icon: BookOpen, label: "Review" },
   ];
 
@@ -51,9 +47,6 @@ export default function Sidebar() {
         })}
       </nav>
 
-      <div className="p-4 border-t border-gray-200">
-        <StreakCard streak={streak} />
-      </div>
     </aside>
   );
 }
