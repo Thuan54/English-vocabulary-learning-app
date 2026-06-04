@@ -1,20 +1,19 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { Word } from '../../types/word';
+import { DueReview } from '../../types/review';
 
 type Props = {
-  word?: Word | null;
+  word?: DueReview | null;
   isFlipped: boolean;
   onFlip: () => void;
 };
 
 export function Flashcard({ word, isFlipped, onFlip }: Props) {
   if (!word) return null;
-
   return (
     <div className="perspective-1000 mb-8">
       <AnimatePresence mode="wait">
         <motion.div
-          key={word.id + (isFlipped ? "-back" : "-front")}
+          key={word.wordId + (isFlipped ? "-back" : "-front")}
           initial={{ rotateY: isFlipped ? -90 : 90, opacity: 0 }}
           animate={{ rotateY: 0, opacity: 1 }}
           exit={{ rotateY: isFlipped ? 90 : -90, opacity: 0 }}
