@@ -4,6 +4,7 @@ import {
   Search,
   Network,
   BookOpen,
+  FileText,
 } from "lucide-react";
 
 export default function Sidebar() {
@@ -14,6 +15,7 @@ export default function Sidebar() {
     { path: "/search", icon: Search, label: "Search" },
     { path: "/learned", icon: Network, label: "Related Words" },
     { path: "/review", icon: BookOpen, label: "Review" },
+    { path: "/pdfReader",icon: FileText, label: "Pdf reader"},
   ];
 
   return (
