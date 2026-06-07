@@ -4,9 +4,10 @@ import { LearnedWordsPage } from "./pages/LearnedWordsPage";
 import { Dashboard } from "./pages/Dashboard";
 import { VocabularySearch } from "./pages/VocabularySearch";
 import { Layout } from "./components/Layout";
+import { PdfReader } from "./pages/PdfReader"
 
 export const router = createBrowserRouter([
-  {
+  { 
     path: "/",
     Component: Layout,
     children: [
@@ -14,6 +15,7 @@ export const router = createBrowserRouter([
       { path: "review", Component: Review },
       { path: "learned", Component: LearnedWordsPage }, 
       { path: "search", Component: VocabularySearch },
+      { path: "pdfReader", Component: PdfReader}
     ],
   },
 ]);
