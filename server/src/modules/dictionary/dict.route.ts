@@ -2,6 +2,7 @@ import {Router} from 'express'
 import { AppError, asyncHandler } from '../../middleware/error'
 import { validateString } from '../../utils/validation'
 import { DictService } from './dict.service'
+import { sourceMapsEnabled } from 'node:process'
 
 export function createDictRouter(service: DictService) {
     const router = Router()
@@ -14,7 +15,7 @@ export function createDictRouter(service: DictService) {
         
         const word = validateString(rawWord, 'Word query parameter')
 
-        const result = await (await service.fetchWordSearch(word)).json()
+        const result = await service.fetchWordSearch(word)
         if(!result.erorr){
             res.json({
                 word: result.word,

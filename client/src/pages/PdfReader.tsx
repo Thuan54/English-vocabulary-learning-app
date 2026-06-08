@@ -71,8 +71,7 @@ export function PdfReader() {
     setIsLoading(true);
 
     try {
-      // const result = await chatWithAi(textToExplain, [{ role: 'user', content: '' }]);
-      const result = 'good-job'; // Placeholder from your original code
+      const result = await chatWithAi(textToExplain, [{ role: 'user', content: '' }]);
       setHistory((prev) => prev.map((m) => (m.id === botId ? { ...m, content: result } : m)));
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Unknown error.';

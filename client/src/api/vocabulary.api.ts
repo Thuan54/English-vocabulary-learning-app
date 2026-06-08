@@ -17,6 +17,17 @@ export const addWordAPI = async (word: string, meaning: string) => {
     return res.json();
 };
 
+export async function fetchStoredWord(word: string) {
+  const res = await fetch(`/api/words/word?q=${word}`)
+  if(!res.ok){
+    const err = await res.json()
+    throw new Error(err.error?.message || 'Error')
+  }
+
+  const storedWord: Word = await res.json()
+  return storedWord
+}
+
 export async function fetchWordSearch(word: string): Promise<Omit<Word,"wordId">> {
   const res = await fetch(`/api/search/word?q=${encodeURIComponent(word)}`);
 

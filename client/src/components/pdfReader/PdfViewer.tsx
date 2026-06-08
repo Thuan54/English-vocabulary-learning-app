@@ -8,7 +8,7 @@ import { PdfPage } from './PdfPage';
 import { PdfSelectionToolbar } from './PdfSelectionToolbar';
 import { usePdfSelection } from '../../hooks/usePdfSelection';
 import { usePdfHighlights } from '../../hooks/usePdfHighlights';
-import { addWordAPI } from '../../api/vocabulary.api';
+import { addWordAPI, fetchStoredWord } from '../../api/vocabulary.api';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 

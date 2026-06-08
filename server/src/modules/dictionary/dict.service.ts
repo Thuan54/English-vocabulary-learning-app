@@ -1,4 +1,4 @@
-import { WordInputDTO } from "../word/word.dto"
+import { raw } from "express";
 
 export class DictService {
     private apiUrl : string | undefined
@@ -11,6 +11,12 @@ export class DictService {
     }
 
     async fetchWordSearch(word: string) {
-        return await fetch(this.apiUrl + '?word=' + word)
+        const result = await fetch(this.apiUrl + '?word=' + word)
+        const rawWord = await result.json();
+        const definition = await fetch(process.env.TRANSLATE_URL + rawWord.definition)
+        const translate = (await definition.json())
+        rawWord.definition = translate[0]
+
+        return rawWord
     }
 }
