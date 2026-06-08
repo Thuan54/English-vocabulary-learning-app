@@ -1,5 +1,6 @@
 import { Search, MessageSquareQuote, BookmarkPlus, Check } from 'lucide-react';
 import { type Word } from '../../types/review';
+import { useState } from 'react';
 
 interface Props {
   selectedText: string;
@@ -13,12 +14,24 @@ interface Props {
 }
 
 export function PdfSelectionToolbar({ selectedText, selectedPage, selectionPosition, onExplainRequest, onContextSet, onHighlight, onAddWord, isAlreadySaved }: Props) {
+  const [justAdded, setJustAdded] = useState(false)
+
   const isSingleWord = selectedText.trim().split(/\s+/).length === 1;
 
   const handleAddToVocab = () => {
     if (isAlreadySaved) return;
     const newWord: Omit<Word, 'wordId'> = { word: selectedText.trim(), meaning: '', pronunciation: '', example: '' };
-    onAddWord(newWord.word, newWord.meaning);
+    try {
+      onAddWord(newWord.word, newWord.meaning);
+      setJustAdded(true)
+
+      setTimeout(() => {
+        setJustAdded(false);
+      }, 2000);
+    } catch (error) {
+      console.error('Failed to add word:', error);
+    }
+
   };
 
   return (
@@ -37,7 +50,14 @@ export function PdfSelectionToolbar({ selectedText, selectedPage, selectionPosit
       <button type="button" onClick={onHighlight} className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium text-amber-700 hover:bg-amber-50 transition">Highlight</button>
       {isSingleWord && (
         <button type="button" onClick={handleAddToVocab} disabled={isAlreadySaved} className={`inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium transition ${isAlreadySaved ? 'text-green-700 bg-green-50' : 'text-blue-700 hover:bg-blue-50'}`}>
-          {isAlreadySaved ? <><Check className="w-3.5 h-3.5" />Saved</> : <><BookmarkPlus className="w-3.5 h-3.5" />Add</>}
+          {isAlreadySaved || justAdded ?
+          (<>
+            <Check className="w-3.5 h-3.5" />
+            {justAdded ? 'Added!' : 'Saved'}
+          </>) : 
+          (<>
+            <BookmarkPlus className="w-3.5 h-3.5" />Add
+          </>)}
         </button>
       )}
     </div>
