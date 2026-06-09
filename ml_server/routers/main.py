@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 
-from ml_server.routers.searchTopic_router import router as search_router
-from ml_server.routers.ai_explained import explain_router
-from ml_server.routers.embedding_router import router as embedding_router
+from routers.searchTopic_router import router as search_router
+from routers.ai_explained import explain_router
+from routers.embedding_router import router as embedding_router
 
 
 app = FastAPI()

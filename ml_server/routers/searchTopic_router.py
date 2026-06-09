@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from pymongo import MongoClient
 import numpy as np
 
-from ml_server.models.embed import Embed
+from models.embed import Embed
 
 
 MONGO_URI = "mongodb://localhost:27017"

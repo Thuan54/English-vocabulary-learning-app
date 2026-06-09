@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
-from ml_server.models.embed import Embed
+from models.embed import Embed
 
 
 router = APIRouter(
