@@ -1,12 +1,18 @@
+import { Collection, Db, ObjectId } from 'mongodb';
 import { MlClient } from './ml.client';
+import { AppError } from '../../middleware/error';
 
-export interface TagSuggestion {
+export interface Word {
+  wordId: string;
   word: string;
-  score: number;
+  meaning: string;
 }
 
 export class AiService {
-  constructor(private readonly mlClient: MlClient) {}
+  private wordCollection : Collection
+  constructor(private readonly mlClient: MlClient, db: Db) {
+    this.wordCollection = db.collection('words')
+  }
 
   /**
    * Giải nghĩa từ vựng bằng AI (Groq/LLaMA qua ml_server).
@@ -19,7 +25,29 @@ export class AiService {
    * Gợi ý các tag/từ liên quan dựa trên embedding similarity.
    * Dùng khi thêm từ mới để tự động đề xuất category phù hợp.
    */
-  async suggestTags(word: string, topK: number = 10): Promise<TagSuggestion[]> {
-    return this.mlClient.suggestTags(word, topK);
+  async suggestTags(topic: string, topK: number = 10): Promise<Word[]> {
+    const res = await this.mlClient.suggestTags(topic, topK);
+    const words = await this.wordCollection.find({
+      _id: {
+        $in: res.map((word) => new ObjectId(word.wordId))
+      }
+    }).toArray()
+    if(!words) throw new AppError('No related words found','NOT_FOUND_WORD',404)
+    
+    return words.map(word => {
+      const relatedWord: Word = {
+        wordId: word._id.toString(),
+        word: word.word,
+        meaning: word.meaning,
+      }
+      return relatedWord
+    })
+  }
+
+  async embedding(word: {wordId: string, meaning: string}){
+    const res = this.mlClient.embeding(word.meaning)
+    await this.wordCollection.findOneAndUpdate(
+    {wordId: new ObjectId(word.wordId)},
+    {$set: {embedding: (await res).embedding}})
   }
 }

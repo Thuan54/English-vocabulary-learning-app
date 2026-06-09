@@ -36,7 +36,7 @@ async def search_topic(req: SearchRequest):
         # 2. Lấy toàn bộ từ vựng đã có vector từ MongoDB
         cursor = words_collection.find(
             {"embedding": {"$exists": True}},
-            {"word": 1, "embedding": 1, "_id": 0}
+            {"wordId": 1, "embedding": 1, "_id": 0}
         )
         words_data = list(cursor)
 
@@ -55,7 +55,7 @@ async def search_topic(req: SearchRequest):
             )
 
             results.append({
-                "word": item["word"],
+                "wordId": item["wordId"],
                 "score": float(similarity)
             })
 

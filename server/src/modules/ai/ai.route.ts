@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { asyncHandler } from '../../middleware/error';
 import { AiService } from './ai.service';
 import { validateString, validateNumber, normalizeWord } from '../../utils/validation';
+import { MlClient } from './ml.client';
 
 export const createAiRouter = (service: AiService) => {
   const router = Router();
@@ -28,7 +29,7 @@ export const createAiRouter = (service: AiService) => {
    * Body: { word: string, top_k?: number }
    * Response: { suggestions: [{ word: string, score: number }] }
    */
-  router.post('/suggest-tags', asyncHandler(async (req: Request, res: Response) => {
+  router.post('/related', asyncHandler(async (req: Request, res: Response) => {
     const rawWord = validateString(req.body.word, 'Word');
     const word = normalizeWord(rawWord);
 
@@ -38,7 +39,7 @@ export const createAiRouter = (service: AiService) => {
 
     const suggestions = await service.suggestTags(word, topK);
 
-    res.status(200).json({ suggestions });
+    res.status(200).json(suggestions);
   }));
 
   return router;

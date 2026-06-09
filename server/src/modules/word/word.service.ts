@@ -2,9 +2,13 @@ import { WordRepository } from './word.repo';
 import { WordResponseDTO } from './word.dto';
 import { validateString } from '../../utils/validation';
 import { ReviewRepository } from '../review/review.repo';
+import { AiService } from '../ai/ai.service';
 
 export class WordService {
-    constructor(private repo: WordRepository, private reviewRepo: ReviewRepository) { }
+    private aiService: AiService
+    constructor(private repo: WordRepository, private reviewRepo: ReviewRepository, aiService: AiService) { 
+        this.aiService = aiService
+    }
 
     async createWord(body: unknown): Promise<WordResponseDTO> {
         const requestBody = body as Record<string, unknown>;
@@ -17,6 +21,8 @@ export class WordService {
         });
 
         const wordReview = await this.reviewRepo.createReview(result.wordId)
+
+        this.aiService.embedding({wordId: result.wordId, meaning: result.meaning})
 
         return result
     }
