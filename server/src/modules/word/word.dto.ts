@@ -4,6 +4,8 @@ export interface WordInputDTO {
     meaning: string;
     pronunciation?: string;
     example?: string;
+    embedding?: number[];
+    search_count?: number;
 }
 
 // Output DTO for word responses
@@ -13,6 +15,8 @@ export interface WordResponseDTO {
     meaning: string;
     pronunciation: string;
     example: string;
+    embedding?: number[];
+    search_count?: number;
 }
 
 // MongoDB document representation
@@ -22,4 +26,6 @@ export interface WordMongoDocument {
     meaning: string;
     pronunciation: string;
     example: string;
+    embedding?: number[];
+    search_count?: number;
 }

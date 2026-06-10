@@ -9,11 +9,13 @@ export class WordRepository {
     }
 
     async insert(dto: WordInputDTO): Promise<WordResponseDTO> {
-        const doc: Omit<WordMongoDocument,"_id"> = {
+        const doc: Omit<WordMongoDocument,"_id"> & { embedding?: number[]; search_count?: number } = {
             word: dto.word,
             meaning: dto.meaning,
             pronunciation: dto.pronunciation?? "",
-            example: dto.example?? ""
+            example: dto.example?? "",
+            embedding: dto.embedding,
+            search_count: dto.search_count ?? 0
         };
 
         const result = await this.collection.insertOne(doc);
@@ -21,6 +23,29 @@ export class WordRepository {
         return {
             wordId: result.insertedId.toString(),
             ...doc
+        };
+    }
+
+    async findByWordAndIncrementSearchCount(wordText: string): Promise<WordResponseDTO | null> {
+        const res = await this.collection.findOneAndUpdate(
+            { word: wordText.toLowerCase().trim() },
+            { $inc: { search_count: 1 } },
+            { returnDocument: 'after' }
+        );
+        
+        if (!res) return null;
+
+        const doc = (res && ('value' in res) ? res.value : res) as any;
+        if (!doc) return null;
+
+        return {
+            wordId: doc._id.toString(),
+            word: doc.word,
+            meaning: doc.meaning,
+            pronunciation: doc.pronunciation,
+            example: doc.example,
+            embedding: doc.embedding,
+            search_count: doc.search_count
         };
     }
 
@@ -32,7 +57,9 @@ export class WordRepository {
             word: d.word,
             meaning: d.meaning,
             pronunciation: d.pronunciation,
-            example: d.example
+            example: d.example,
+            embedding: d.embedding,
+            search_count: d.search_count
         }));
     }
 
@@ -46,7 +73,9 @@ export class WordRepository {
             word: doc.word,
             meaning: doc.meaning,
             pronunciation: doc.pronunciation,
-            example: doc.example
+            example: doc.example,
+            embedding: doc.embedding,
+            search_count: doc.search_count
         };
     }
 }
