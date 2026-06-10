@@ -194,7 +194,17 @@ export async function seed(db: any) {
   await db.collection('review_records').deleteMany({});
   await db.collection('word_review').deleteMany({});
   
-  await db.collection('words').insertMany(words);
+  const wordsWithEmbeddings = words.map((w, wIdx) => ({
+    ...w,
+    embedding: Array.from({ length: 384 }, (_, idx) => {
+      // Stable mock embedding values using Math.sin
+      const val = Math.sin(idx + wIdx + 1);
+      return parseFloat(val.toFixed(4));
+    }),
+    search_count: 0
+  }));
+  
+  await db.collection('words').insertMany(wordsWithEmbeddings);
   await db.collection('review_records').insertMany(reviewRecords);
   await db.collection('word_review').insertMany(wordReviews);
 }
