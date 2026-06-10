@@ -37,6 +37,16 @@ export class MlClient {
   }
 
   /**
+   * Gọi POST /embedding/ của ml_server.
+   * Trả về vector embedding của từ khóa.
+   * @throws AppError 503 nếu ml_server không phản hồi
+   */
+  async getEmbedding(word: string): Promise<number[]> {
+    const res = await this.post<{ embedding: number[] }>(`/embedding/?word=${encodeURIComponent(word)}`, {});
+    return res.embedding;
+  }
+
+  /**
    * Gọi POST /search/ của ml_server.
    * Trả về danh sách từ có embedding gần nhất với topic.
    * @throws AppError 503 nếu ml_server không phản hồi

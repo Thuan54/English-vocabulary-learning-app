@@ -84,6 +84,44 @@ export class ReviewRepository {
   return result;
 }
 
+  // Get all learned words (repetition >= 1) with their embeddings and details
+  async getLearnedWordsWithEmbeddings(): Promise<(WordResponseDTO & { embedding?: number[] })[]> {
+    const result = await this.wordReviewCollection
+      .aggregate<any>([
+        {
+          $match: {
+            repetition: { $gte: 1 }
+          }
+        },
+        {
+          $lookup: {
+            from: "words",
+            localField: "wordId",
+            foreignField: "_id",
+            as: "word"
+          }
+        },
+        {
+          $unwind: "$word"
+        },
+        {
+          $project: {
+            _id: 0,
+            wordId: { $toString: "$word._id" },
+            word: "$word.word",
+            meaning: "$word.meaning",
+            pronunciation: "$word.pronunciation",
+            example: "$word.example",
+            embedding: "$word.embedding",
+            search_count: "$word.search_count"
+          }
+        }
+      ])
+      .toArray();
+
+    return result || [];
+  }
+
   // Update word_review after feedback
   async updateWordReview(
     wordReviewId: string,

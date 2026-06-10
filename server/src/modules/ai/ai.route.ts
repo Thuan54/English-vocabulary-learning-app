@@ -41,5 +41,23 @@ export const createAiRouter = (service: AiService) => {
     res.status(200).json({ suggestions });
   }));
 
+  /**
+   * POST /api/ai/related
+   * Body: { term: string, category: 'topics' | 'synonyms' }
+   * Response: Word[] (learned words sorted by similarity)
+   */
+  router.post('/related', asyncHandler(async (req: Request, res: Response) => {
+    const term = validateString(req.body.term, 'term');
+    const category = validateString(req.body.category, 'category');
+
+    if (category !== 'topics' && category !== 'synonyms') {
+      res.status(400).json({ error: { message: 'Category must be topics or synonyms', code: 'VALIDATION_ERROR' } });
+      return;
+    }
+
+    const result = await service.getRelatedWords(term, category);
+    res.status(200).json(result);
+  }));
+
   return router;
 };
