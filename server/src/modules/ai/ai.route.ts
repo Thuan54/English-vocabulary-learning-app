@@ -30,7 +30,7 @@ export const createAiRouter = (service: AiService) => {
    * Response: { suggestions: [{ word: string, score: number }] }
    */
   router.post('/related', asyncHandler(async (req: Request, res: Response) => {
-    const rawWord = validateString(req.body.word, 'Word');
+    const rawWord = validateString(req.body.term, 'Word');
     const word = normalizeWord(rawWord);
 
     const topK = req.body.top_k !== undefined
