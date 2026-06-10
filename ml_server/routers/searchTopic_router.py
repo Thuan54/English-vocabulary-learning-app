@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from pymongo import MongoClient
 import numpy as np
 
-from ml_server.models.embed import Embed
+from models.embed import Embed
 
 
 MONGO_URI = "mongodb://localhost:27017"
@@ -36,7 +36,7 @@ async def search_topic(req: SearchRequest):
         # 2. Lấy toàn bộ từ vựng đã có vector từ MongoDB
         cursor = words_collection.find(
             {"embedding": {"$exists": True}},
-            {"word": 1, "embedding": 1, "_id": 0}
+            {"_id": 1, "embedding": 1}
         )
         words_data = list(cursor)
 
@@ -55,7 +55,7 @@ async def search_topic(req: SearchRequest):
             )
 
             results.append({
-                "word": item["word"],
+                "wordId": item["_id"],
                 "score": float(similarity)
             })
 

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
-from ml_server.models.embed import Embed
+from models.embed import Embed
 
 
 router = APIRouter(
@@ -9,18 +9,21 @@ router = APIRouter(
     tags=["Embedding"]
 )
 
+class EmbeddingRequest(BaseModel):
+    word: str
+
 class EmbeddingResponse(BaseModel):
     embedding: list[float]
 
 
 @router.post("/", response_model=EmbeddingResponse)
-async def processEmbedding(word: str):
+async def processEmbedding(req: EmbeddingRequest):
     """
         Endpoint nhận từ của người dùng và trả về vector embedding của từ đó.
     """
     try:
         embedder = Embed()
-        embedding = embedder.embed_text(word)
+        embedding = embedder.embed_text(req.word)
 
         return {
             "embedding": embedding

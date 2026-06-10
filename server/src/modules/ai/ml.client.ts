@@ -6,12 +6,16 @@ interface ExplainResponse {
 }
 
 interface SearchResult {
-  word: string;
+  wordId: string;
   score: number;
 }
 
 interface SearchResponse {
   top_results: SearchResult[];
+}
+
+type EmbeddingResponse = {
+  embedding: Array<Float32Array>
 }
 
 /**
@@ -36,6 +40,12 @@ export class MlClient {
     return { explanation: res.explanation };
   }
 
+  
+  async embeding(word: string) {
+    const res = await this.post<EmbeddingResponse>('/embedding',{word: word})
+    return res
+  }
+
   /**
    * Gọi POST /search/ của ml_server.
    * Trả về danh sách từ có embedding gần nhất với topic.
@@ -49,6 +59,7 @@ export class MlClient {
       topic,
       top_k: topK,
     });
+    
     return res.top_results;
   }
 

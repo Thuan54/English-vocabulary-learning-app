@@ -1,16 +1,16 @@
 import { Word } from "../types/review";
 
 export async function chatWithAi(word: string, history: { role: string, content: string }[]): Promise<string> {
-  const response = await fetch('/api/ai/chat', {
+  const response = await fetch('/api/ai/explain', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ word, history })
+    body: JSON.stringify({ word })
   });
   
   if (!response.ok) throw new Error('AI request failed');
   
   const data = await response.json();
-  return data.response; // Adjust based on your backend response structure
+  return data.explanation;
 }
 
 export async function fetchRelatedWords(term: string, category: "topics" | "synonyms"): Promise<Word[]> {

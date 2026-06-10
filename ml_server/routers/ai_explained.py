@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from ml_server.models.ai_explained import WordExplainer
+from models.ai_explained import WordExplainer
 
 
 

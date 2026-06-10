@@ -4,8 +4,6 @@ from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate
 
 
-
-
 class WordExplainer:
     def __init__(self):
         load_dotenv()
