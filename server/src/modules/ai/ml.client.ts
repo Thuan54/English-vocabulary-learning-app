@@ -42,7 +42,7 @@ export class MlClient {
 
   
   async embeding(word: string) {
-    const res = await this.post<EmbeddingResponse>('/embeding',{word: word})
+    const res = await this.post<EmbeddingResponse>('/embedding',{word: word})
     return res
   }
 
