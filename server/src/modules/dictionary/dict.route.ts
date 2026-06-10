@@ -16,11 +16,12 @@ export function createDictRouter(service: DictService) {
         const word = validateString(rawWord, 'Word query parameter')
 
         const result = await service.fetchWordSearch(word)
-        if(!result.erorr){
+        if(!result.error){
             res.json({
                 word: result.word,
                 meaning: result.definition
-            })
+            });
+            return;
         }
         res.status(404).json({
             error: result.error
