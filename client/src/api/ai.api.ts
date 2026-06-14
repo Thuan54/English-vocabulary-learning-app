@@ -1,6 +1,6 @@
 import { Word } from "../types/review";
 
-export async function chatWithAi(word: string, history: { role: string, content: string }[]): Promise<string> {
+export async function chatWithAi(word: string, _history: { role: string, content: string }[]): Promise<string> {
   const response = await fetch('/api/ai/explain', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -28,4 +28,21 @@ export async function fetchRelatedWords(term: string, category: "topics" | "syno
   }
 
   return res.json();
+}
+
+export async function translateText(text: string): Promise<string> {
+  const res = await fetch('/api/ai/translate', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ text }),
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    const message = body?.error || "Failed to translate text";
+    throw new Error(message);
+  }
+  const data = await res.json();
+  return data.translation;
 }
