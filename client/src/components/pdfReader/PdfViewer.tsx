@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { Document, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/Page/TextLayer.css';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
@@ -9,26 +9,32 @@ import { PdfSelectionToolbar } from './PdfSelectionToolbar';
 import { usePdfSelection } from '../../hooks/usePdfSelection';
 import { usePdfHighlights } from '../../hooks/usePdfHighlights';
 import { addWordAPI } from '../../api/vocabulary.api';
+import { scanPatterns, type ScanPatternsResult } from '../../api/ai.api';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 interface PdfViewerProps {
   onExplainRequest: (text: string, pageNumber?: number) => Promise<void>;
   onContextSet?: (text: string, pageNumber?: number) => void;
+  onAnalyzeRequest: (text: string) => void;
+  onParaphraseRequest: (text: string) => void;
+  onSmartAdd: (word: string, surroundingText: string) => void;
 }
 
-export default function PdfViewer({ onExplainRequest, onContextSet }: PdfViewerProps) {
+export default function PdfViewer({ onExplainRequest, onContextSet, onAnalyzeRequest, onParaphraseRequest, onSmartAdd }: PdfViewerProps) {
   const [file, setFile] = useState<File | null>(null);
   const [numPages, setNumPages] = useState<number | null>(null);
   const [pdfError, setPdfError] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string>('');
-  
+  const [isScanMode, setIsScanMode] = useState(false);
+  const [isScanning, setIsScanning] = useState(false);
+
   const pdfContainerRef = useRef<HTMLDivElement | null>(null);
   const pageContainerRefs = useRef<Record<number, HTMLDivElement | null>>({});
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const { highlights, addHighlight, removeHighlight } = usePdfHighlights(fileName);
-  
+  const { highlights, addHighlight, removeHighlight, addSystemHighlights, clearSystemHighlights } = usePdfHighlights(fileName);
+
   // Simplified: no longer needs textContentMap or pageDimensions
   const { selectedText, selectedPage, selectionPosition, handleSelection } = usePdfSelection(
     pdfContainerRef,
@@ -46,6 +52,8 @@ export default function PdfViewer({ onExplainRequest, onContextSet }: PdfViewerP
     setFile(selectedFile);
     setFileName(selectedFile.name);
     setPdfError(null);
+    // Reset scan mode when new file loaded
+    setIsScanMode(false);
   };
 
   const onClear = () => {
@@ -53,6 +61,7 @@ export default function PdfViewer({ onExplainRequest, onContextSet }: PdfViewerP
     setFileName('');
     setPdfError(null);
     setNumPages(null);
+    setIsScanMode(false);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
@@ -88,25 +97,99 @@ export default function PdfViewer({ onExplainRequest, onContextSet }: PdfViewerP
     window.getSelection()?.removeAllRanges();
   };
 
-  const addWord = async (word: string, meaning: string) => {
-    await addWordAPI(word, meaning);
+  const handleAddWord = async (word: string, surroundingText: string) => {
+    // Call smart add (AI flashcard) via parent
+    onSmartAdd(word, surroundingText);
+    // Also save to DB
+    await addWordAPI(word, '');
   };
+
+  // ─── Scan Patterns ──────────────────────────────────────────────────────────
+
+  const extractPageText = useCallback((pageNumber: number): string => {
+    const pageEl = pageContainerRefs.current[pageNumber];
+    if (!pageEl) return '';
+    const textLayer = pageEl.querySelector('.react-pdf__Page__textContent');
+    if (!textLayer) return '';
+    return textLayer.textContent || '';
+  }, []);
+
+  const handleScanToggle = useCallback(async () => {
+    if (isScanMode) {
+      // Turn off: remove system highlights
+      setIsScanMode(false);
+      clearSystemHighlights();
+      return;
+    }
+
+    // Turn on: scan visible pages
+    setIsScanMode(true);
+    setIsScanning(true);
+
+    try {
+      // Collect text from all pages
+      const allPageTexts: string[] = [];
+      for (let i = 1; i <= (numPages || 0); i++) {
+        allPageTexts.push(extractPageText(i));
+      }
+      const fullText = allPageTexts.join('\n\n');
+      if (!fullText.trim()) {
+        setIsScanning(false);
+        return;
+      }
+
+      const result = await scanPatterns(fullText);
+
+      // Convert scan results to system highlights
+      // We'll create text-based highlights that PdfPage can render
+      const systemHighlights: Array<{
+        text: string;
+        type: 'collocation' | 'signal-word';
+        category?: string;
+      }> = [];
+
+      result.collocations.forEach((c) => {
+        systemHighlights.push({
+          text: c.phrase,
+          type: 'collocation',
+          category: c.category,
+        });
+      });
+
+      result.signalWords.forEach((s) => {
+        systemHighlights.push({
+          text: s.phrase,
+          type: 'signal-word',
+          category: s.category,
+        });
+      });
+
+      addSystemHighlights(systemHighlights);
+    } catch (error) {
+      console.error('Scan patterns failed:', error);
+    } finally {
+      setIsScanning(false);
+    }
+  }, [isScanMode, numPages, extractPageText, clearSystemHighlights, addSystemHighlights]);
 
   return (
     <div className="flex flex-col h-full">
-      <PdfUploader 
-        numPages={numPages} 
-        fileName={fileName} 
-        pdfError={pdfError} 
-        fileInputRef={fileInputRef} 
-        onFileChange={onFileChange} 
-        onClear={onClear} 
+      <PdfUploader
+        numPages={numPages}
+        fileName={fileName}
+        pdfError={pdfError}
+        fileInputRef={fileInputRef}
+        onFileChange={onFileChange}
+        onClear={onClear}
+        isScanMode={isScanMode}
+        isScanning={isScanning}
+        onScanToggle={handleScanToggle}
       />
-      
-      <div 
-        ref={pdfContainerRef} 
-        className="relative flex-1 overflow-y-auto bg-gray-100 p-4" 
-        onMouseUp={handleSelection} 
+
+      <div
+        ref={pdfContainerRef}
+        className="relative flex-1 overflow-y-auto bg-gray-100 p-4"
+        onMouseUp={handleSelection}
         onKeyUp={handleSelection}
       >
         {pdfError && (
@@ -114,7 +197,7 @@ export default function PdfViewer({ onExplainRequest, onContextSet }: PdfViewerP
             {pdfError}
           </div>
         )}
-        
+
         {!file && !pdfError && (
           <div className="h-full flex flex-col items-center justify-center text-gray-400">
             <div className="text-4xl mb-3 opacity-40">📄</div>
@@ -151,7 +234,9 @@ export default function PdfViewer({ onExplainRequest, onContextSet }: PdfViewerP
             onExplainRequest={onExplainRequest}
             onContextSet={onContextSet}
             onHighlight={handleAddHighlightFromSelection}
-            onAddWord={addWord}
+            onAddWord={handleAddWord}
+            onAnalyzeRequest={onAnalyzeRequest}
+            onParaphraseRequest={onParaphraseRequest}
             isAlreadySaved={false}
           />
         )}

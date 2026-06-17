@@ -22,7 +22,7 @@ export class WordService {
 
         const wordReview = await this.reviewRepo.createReview(result.wordId)
 
-        this.aiService.embedding({wordId: result.wordId, meaning: result.meaning})
+        this.aiService.embedding({wordId: result.wordId, word: result.word})
 
         return result
     }
