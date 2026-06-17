@@ -1,5 +1,6 @@
 import { useEffect, useRef, useMemo } from 'react';
 import { Page } from 'react-pdf';
+import { useState, useRef, useEffect } from 'react';
 import 'react-pdf/dist/Page/TextLayer.css';
 import type { PdfHighlight, HighlightType } from '../../hooks/usePdfHighlights';
 
@@ -16,11 +17,11 @@ interface Props {
   pageContainerRef: (el: HTMLDivElement | null) => void;
 }
 
-export function PdfPage({ 
-  pageNumber, 
-  highlights, 
-  onRemoveHighlight, 
-  pageContainerRef, 
+export function PdfPage({
+  pageNumber,
+  highlights,
+  onRemoveHighlight,
+  pageContainerRef,
 }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
 
@@ -109,6 +110,7 @@ export function PdfPage({
     >
       <Page
         pageNumber={pageNumber}
+        width={pageWidth} // <-- This makes the PDF scale responsively
         renderTextLayer={true}
         renderAnnotationLayer={false}
         className="react-pdf__Page"
@@ -121,7 +123,9 @@ export function PdfPage({
             {h.rects.map((r: any, i: number) => (
               <div
                 key={i}
-                onClick={() => { if (confirm('Remove this highlight?')) onRemoveHighlight(h.id); }}
+                onClick={() => { 
+                  if (confirm('Remove this highlight?')) onRemoveHighlight(h.id); 
+                }}
                 style={{
                   left: `${r.left * 100}%`,
                   top: `${r.top * 100}%`,
