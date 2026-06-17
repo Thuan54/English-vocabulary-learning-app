@@ -4,6 +4,7 @@ SCHEMA.md
 *.md
 .env
 dist/
+__pycache__/
 # Logs
 logs
 *.log

@@ -7,7 +7,7 @@ from models.embed import Embed
 
 
 MONGO_URI = "mongodb://localhost:27017"
-DB_NAME = "vocabulary-app"
+DB_NAME = "tdtt"
 
 try:
     mongo_client = MongoClient(MONGO_URI)
@@ -42,6 +42,8 @@ async def search_topic(req: SearchRequest):
 
         if not words_data:
             return {"top_results": []}
+
+        print()
 
         results = []
 
