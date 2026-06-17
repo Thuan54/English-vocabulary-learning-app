@@ -1,0 +1,48 @@
+# ==========================================
+# Stage 1: Build Frontend (Client)
+# ==========================================
+# 🛠️ FIX 1: Use 'slim' (Debian) instead of 'alpine' for the build stage.
+# Rolldown/Vite native bindings are much more stable on glibc (Debian) than musl (Alpine).
+FROM node:20-slim AS frontend-builder
+WORKDIR /app/client
+
+COPY client/package.json ./
+
+# 🛠️ FIX 2: Use 'npm install' instead of 'npm ci'.
+# This ensures npm downloads the correct Linux native binaries (bindings) 
+# even if your package-lock.json was generated on Windows/Mac.
+RUN npm install
+
+COPY client/ ./
+RUN npm run build
+
+# ==========================================
+# Stage 2: Build Backend (Server)
+# ==========================================
+# Backend doesn't use Rolldown, so Alpine is perfectly fine and keeps it lightweight
+FROM node:20-alpine AS backend-builder
+WORKDIR /app/server
+
+COPY server/package.json server/package-lock.json ./
+RUN npm ci
+
+# .dockerignore handles excluding tests/__tests__
+COPY server/ ./
+RUN npx tsc
+
+# ==========================================
+# Stage 3: Production Image
+# ==========================================
+# Final image is Alpine to keep the deployed container as small as possible
+FROM node:20-alpine AS production
+WORKDIR /app
+
+ENV NODE_ENV=production
+
+COPY server/package.json server/package-lock.json ./
+RUN npm ci --omit=dev
+
+COPY --from=backend-builder /app/server/dist ./dist
+COPY --from=frontend-builder /app/client/dist ./dist/public
+
+CMD ["node", "dist/index.js"]
