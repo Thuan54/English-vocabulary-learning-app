@@ -1,5 +1,4 @@
 import { Search, MessageSquareQuote, BookmarkPlus, Check, Languages, Loader2, ChevronDown, FlaskConical, RefreshCw } from 'lucide-react';
-import { type Word } from '../../types/review';
 import { useState, useRef, useEffect } from 'react';
 import { translateText } from '../../api/ai.api';
 

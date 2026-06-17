@@ -9,7 +9,7 @@ import { PdfSelectionToolbar } from './PdfSelectionToolbar';
 import { usePdfSelection } from '../../hooks/usePdfSelection';
 import { usePdfHighlights } from '../../hooks/usePdfHighlights';
 import { addWordAPI } from '../../api/vocabulary.api';
-import { scanPatterns, type ScanPatternsResult } from '../../api/ai.api';
+import { scanPatterns } from '../../api/ai.api';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 

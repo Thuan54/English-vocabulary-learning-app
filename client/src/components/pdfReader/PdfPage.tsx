@@ -1,6 +1,5 @@
-import { useEffect, useRef, useMemo } from 'react';
 import { Page } from 'react-pdf';
-import { useState, useRef, useEffect } from 'react';
+import { useState,useRef, useEffect, useMemo } from 'react';
 import 'react-pdf/dist/Page/TextLayer.css';
 import type { PdfHighlight, HighlightType } from '../../hooks/usePdfHighlights';
 
@@ -24,6 +23,25 @@ export function PdfPage({
   pageContainerRef,
 }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const innerRef = useRef<HTMLDivElement>(null);
+  const [pageWidth, setPageWidth] = useState<number>(800);
+
+  useEffect(() => {
+    const updateWidth = () => {
+      if (innerRef.current) {
+        // Use the container's current width, which is constrained by max-w-4xl
+        setPageWidth(innerRef.current.clientWidth);
+        setPageWidth(innerRef.current.clientWidth);
+      }
+    };
+
+    // Initial measurement (small timeout ensures DOM is ready)
+    setTimeout(updateWidth, 50);
+    
+    window.addEventListener('resize', updateWidth);
+    return () => window.removeEventListener('resize', updateWidth);
+  }, []);
+
 
   // Rect-based highlights for this page (user-created)
   const pageHighlights = highlights.filter(
