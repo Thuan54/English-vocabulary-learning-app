@@ -14,7 +14,7 @@ explain_router = APIRouter(
     tags=["Explaination"]
 )
 
-# Khai báo schema cho Request và Response
+# Khai báo schema cho Re    quest và Response
 class ExplainRequest(BaseModel):
     word: Optional[str] = None
     text: Optional[str] = None

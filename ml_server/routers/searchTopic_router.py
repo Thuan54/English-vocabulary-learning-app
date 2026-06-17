@@ -57,7 +57,7 @@ async def search_topic(req: SearchRequest):
             )
 
             results.append({
-                "wordId": item["_id"],
+                "wordId": str(item["_id"]),
                 "score": float(similarity)
             })
 

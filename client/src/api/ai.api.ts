@@ -29,3 +29,20 @@ export async function fetchRelatedWords(term: string, category: "topics" | "syno
 
   return res.json();
 }
+
+export async function translateText(text: string): Promise<string> {
+  const res = await fetch('/api/ai/translate', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ text }),
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    const message = body?.error || "Failed to translate text";
+    throw new Error(message);
+  }
+  const data = await res.json();
+  return data.translation;
+}
