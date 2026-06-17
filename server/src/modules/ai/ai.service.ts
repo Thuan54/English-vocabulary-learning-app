@@ -44,8 +44,8 @@ export class AiService {
     })
   }
 
-  async embedding(word: {wordId: string, meaning: string}){
-    const res = this.mlClient.embeding(word.meaning)
+  async embedding(word: {wordId: string, word: string}){
+    const res = this.mlClient.embeding(word.word)
     await this.wordCollection.findOneAndUpdate(
     {wordId: new ObjectId(word.wordId)},
     {$set: {embedding: (await res).embedding}})

@@ -1,6 +1,6 @@
 import express from "express";
-import cors from "cors";
 import dotenv from "dotenv";
+import path from "path"
 
 import { connectDB, getDB } from "./config/db";
 import { errorHandler } from "./middleware/error.middleware";
@@ -26,12 +26,8 @@ dotenv.config();
 
 const app = express();
 
-app.use(cors({
-  origin: true,
-  credentials: true
-}));
-
 app.use(express.json());
+app.use(express.static(path.join(__dirname,'public')))
 
 app.get("/health", (req, res) => {
   res.status(200).json({ status: "ok" });
