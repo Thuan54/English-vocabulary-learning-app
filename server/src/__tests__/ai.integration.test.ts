@@ -16,7 +16,15 @@ const mockMlClient = {
   ]),
 } as unknown as MlClient;
 
-const aiService = new AiService(mockMlClient);
+const mockDb = {
+  collection: jest.fn().mockReturnValue({
+    find: jest.fn().mockReturnValue({
+      toArray: jest.fn().mockResolvedValue([])
+    })
+  })
+} as any;
+
+const aiService = new AiService(mockMlClient, mockDb);
 const aiRouter = createAiRouter(aiService);
 
 const app = express();
@@ -51,30 +59,29 @@ describe('AI Endpoints Integration', () => {
     expect(res.body.error).toHaveProperty('code', 'VALIDATION_ERROR');
   });
 
-  // ─── /suggest-tags ────────────────────────────────────────────────────────
+  // ─── /related ────────────────────────────────────────────────────────
 
-  it('POST /suggest-tags — trả suggestions khi word hợp lệ', async () => {
+  it('POST /related — trả suggestions khi term hợp lệ', async () => {
     const res = await request(app)
-      .post('/api/ai/suggest-tags')
-      .send({ word: 'cat', top_k: 5 });
+      .post('/api/ai/related')
+      .send({ term: 'cat', top_k: 5 });
 
     expect(res.status).toBe(200);
-    expect(res.body).toHaveProperty('suggestions');
-    expect(Array.isArray(res.body.suggestions)).toBe(true);
+    expect(Array.isArray(res.body)).toBe(true);
     expect(mockMlClient.suggestTags).toHaveBeenCalledWith('cat', 5);
   });
 
-  it('POST /suggest-tags — top_k mặc định là 10 khi không truyền', async () => {
+  it('POST /related — top_k mặc định là 10 khi không truyền', async () => {
     const res = await request(app)
-      .post('/api/ai/suggest-tags')
-      .send({ word: 'dog' });
+      .post('/api/ai/related')
+      .send({ term: 'dog' });
 
     expect(res.status).toBe(200);
     expect(mockMlClient.suggestTags).toHaveBeenCalledWith('dog', 10);
   });
 
-  it('POST /suggest-tags — trả 400 khi word rỗng', async () => {
-    const res = await request(app).post('/api/ai/suggest-tags').send({ word: '' });
+  it('POST /related — trả 400 khi term rỗng', async () => {
+    const res = await request(app).post('/api/ai/related').send({ term: '' });
     expect(res.status).toBe(400);
     expect(res.body.error).toHaveProperty('code', 'VALIDATION_ERROR');
   });
