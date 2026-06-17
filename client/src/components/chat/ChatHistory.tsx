@@ -1,7 +1,17 @@
 import { MessageSquare } from 'lucide-react';
 import { MarkdownContent } from '../pdfReader/MarkdownContent';
+import { GrammarAnalysisView } from '../pdfReader/GrammarAnalysis';
+import { ParaphraseStepsView } from '../pdfReader/ParaphraseSteps';
+import type { GrammarAnalysis, ParaphraseStep } from '../../api/ai.api';
 
-export type ChatMessage = { id: string; role: 'user' | 'bot'; content: string };
+export type ChatMessage = {
+  id: string;
+  role: 'user' | 'bot';
+  content: string;
+  // Structured data for CT features
+  grammarAnalysis?: GrammarAnalysis;
+  paraphraseSteps?: { steps: ParaphraseStep[]; originalSentence: string };
+};
 
 interface Props {
   history: ChatMessage[];
@@ -35,7 +45,23 @@ export function ChatHistory({ history, isLoading, historyScrollRef }: Props) {
               : 'bg-gray-50 text-gray-800 border border-gray-100 rounded-bl-md'
           }`}>
             {msg.role === 'bot' ? (
-              <MarkdownContent content={msg.content} />
+              <>
+                {/* CT Step 1: Grammar Analysis */}
+                {msg.grammarAnalysis && (
+                  <GrammarAnalysisView data={msg.grammarAnalysis} />
+                )}
+                {/* CT Step 4: Paraphrase Steps */}
+                {msg.paraphraseSteps && (
+                  <ParaphraseStepsView
+                    steps={msg.paraphraseSteps.steps}
+                    originalSentence={msg.paraphraseSteps.originalSentence}
+                  />
+                )}
+                {/* Regular markdown content (if no structured data, or as fallback) */}
+                {!msg.grammarAnalysis && !msg.paraphraseSteps && (
+                  <MarkdownContent content={msg.content} />
+                )}
+              </>
             ) : (
               <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
             )}

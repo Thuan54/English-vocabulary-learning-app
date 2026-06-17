@@ -17,14 +17,14 @@ export function createDictRouter(service: DictService) {
 
         const result = await service.fetchWordSearch(word)
         if(!result.erorr){
-            res.json({
+            return res.json({
                 word: result.word,
                 meaning: result.definition
-            })
+            });
         }
-        res.status(404).json({
+        return res.status(404).json({
             error: result.error
-        })
+        });
     }))
 
     return router

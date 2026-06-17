@@ -47,7 +47,40 @@ export class AiService {
   async embedding(word: {wordId: string, word: string}){
     const res = this.mlClient.embeding(word.word)
     await this.wordCollection.findOneAndUpdate(
-    {wordId: new ObjectId(word.wordId)},
-    {$set: {embedding: (await res).embedding}})
+      { _id: new ObjectId(word.wordId) },
+      { $set: { embedding: (await res).embedding } }
+    );
+  }
+
+  async translateText(text: string): Promise<string> {
+    const translateUrl = process.env.TRANSLATE_URL;
+    if (!translateUrl) {
+      throw new AppError('TRANSLATE_URL is not defined in environment variables', 'CONFIG_ERROR', 500);
+    }
+    const url = `${translateUrl}${encodeURIComponent(text)}`;
+    const res = await fetch(url);
+    if (!res.ok) {
+      throw new AppError('Không thể kết nối dịch vụ dịch thuật', 'TRANSLATION_ERROR', 502);
+    }
+    const data = await res.json() as string[];
+    return data[0] || text;
+  }
+
+  // ─── CT Grammar Features ─────────────────────────────────────────────────
+
+  async analyzeGrammar(sentence: string) {
+    return this.mlClient.analyzeGrammar(sentence);
+  }
+
+  async scanPatterns(text: string) {
+    return this.mlClient.scanPatterns(text);
+  }
+
+  async smartFlashcard(word: string, surroundingText: string) {
+    return this.mlClient.smartFlashcard(word, surroundingText);
+  }
+
+  async paraphrase(sentence: string) {
+    return this.mlClient.paraphrase(sentence);
   }
 }
