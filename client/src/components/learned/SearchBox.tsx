@@ -12,12 +12,18 @@ export function SearchBox({ setValue, placeholder }: Props) {
       <input type="text" ref={inputRef} placeholder={placeholder} 
         onKeyDown={(e) => {
           if(e.key === 'Enter'){
-            setValue(inputRef.current.value)
+            if(inputRef.current){
+              setValue(inputRef.current.value)
+            }
           }
         }}
         className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-purple-400 bg-white" />
       <button type="submit" className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm text-gray-400 hover:text-gray-600 focus:outline-none"
-        onClick={() => setValue(inputRef.current.value)}>
+        onClick={() => {
+          if(inputRef.current){
+            setValue(inputRef.current.value)
+          }
+        }}>
         Search
       </button>
     </div>

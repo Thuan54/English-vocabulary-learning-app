@@ -10,7 +10,7 @@ interface Props {
 }
 
 export function ChatHistory({ history, isLoading, historyScrollRef }: Props) {
-  if (history.length === 0) {
+  if (history.length === 0 && !isLoading) {
     return (
       <div className="flex flex-col items-center justify-center h-full text-center px-6">
         <div className="rounded-2xl bg-gray-50 p-4 mb-4">

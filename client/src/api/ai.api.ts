@@ -1,6 +1,6 @@
 import { Word } from "../types/review";
 
-export async function chatWithAi(word: string, history: { role: string, content: string }[]): Promise<string> {
+export async function chatWithAi(word: string, _history: { role: string, content: string }[]): Promise<string> {
   const response = await fetch('/api/ai/explain', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

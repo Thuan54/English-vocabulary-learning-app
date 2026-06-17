@@ -8,7 +8,7 @@ import { PdfPage } from './PdfPage';
 import { PdfSelectionToolbar } from './PdfSelectionToolbar';
 import { usePdfSelection } from '../../hooks/usePdfSelection';
 import { usePdfHighlights } from '../../hooks/usePdfHighlights';
-import { addWordAPI, fetchStoredWord } from '../../api/vocabulary.api';
+import { addWordAPI } from '../../api/vocabulary.api';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
@@ -130,7 +130,7 @@ export default function PdfViewer({ onExplainRequest, onContextSet }: PdfViewerP
             loading={<div className="absolute inset-0 z-10 flex items-center justify-center bg-white/80 text-gray-700 font-semibold">Loading PDF...</div>}
           >
             <div className="space-y-4">
-              {numPages && Array.from(new Array(numPages), (el, index) => (
+              {numPages && Array.from(new Array(numPages), (_el, index) => (
                 <PdfPage
                   key={`page_${index + 1}`}
                   pageNumber={index + 1}
