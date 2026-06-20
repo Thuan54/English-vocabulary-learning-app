@@ -21,6 +21,7 @@ router = APIRouter(prefix="/search", tags=["Search"])
 class SearchRequest(BaseModel):
     topic: str
     top_k: int = 20
+    threshold: float = 0.35
 
 
 embedder = Embed()
@@ -54,10 +55,11 @@ async def search_topic(req: SearchRequest):
                 np.linalg.norm(topic_np) * np.linalg.norm(word_np)
             )
 
-            results.append({
-                "wordId": item["_id"],
-                "score": float(similarity)
-            })
+            if similarity >= req.threshold:
+                results.append({
+                    "wordId": str(item["_id"]),
+                    "score": float(similarity)
+                })
 
         # 4. Sắp xếp giảm dần và lấy Top K
         results.sort(key=lambda x: x["score"], reverse=True)
