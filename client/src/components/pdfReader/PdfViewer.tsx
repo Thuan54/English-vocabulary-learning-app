@@ -8,8 +8,8 @@ import { PdfPage } from './PdfPage';
 import { PdfSelectionToolbar } from './PdfSelectionToolbar';
 import { usePdfSelection } from '../../hooks/usePdfSelection';
 import { usePdfHighlights } from '../../hooks/usePdfHighlights';
-import { addWordAPI } from '../../api/vocabulary.api';
-import { scanPatterns, type ScanPatternsResult } from '../../api/ai.api';
+import { addWordAPI, fetchWordSearch } from '../../api/vocabulary.api';
+import { scanPatterns } from '../../api/ai.api';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
@@ -101,7 +101,8 @@ export default function PdfViewer({ onExplainRequest, onContextSet, onAnalyzeReq
     // Call smart add (AI flashcard) via parent
     onSmartAdd(word, surroundingText);
     // Also save to DB
-    await addWordAPI(word, '');
+    const searchedWord = await fetchWordSearch(word)
+    await addWordAPI(searchedWord.word, searchedWord.meaning);
   };
 
   // ─── Scan Patterns ──────────────────────────────────────────────────────────

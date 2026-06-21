@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Trash2, Volume2, ChevronDown, ChevronUp, BookOpen } from 'lucide-react';
+import { Trash2, ChevronDown, ChevronUp, BookOpen } from 'lucide-react';
 import type { FlashcardData } from '../../api/ai.api';
 
 const VOCAB_DECK_KEY = 'pdf-vocab-deck-v1';

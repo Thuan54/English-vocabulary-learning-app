@@ -15,6 +15,10 @@ export class WordService {
         const word = validateString(requestBody.word, 'word');
         const meaning = validateString(requestBody.meaning, 'meaning');
 
+        const stored = await this.repo.getByWord(word)
+
+        if(stored) return stored
+            
         const result = await this.repo.insert({
             word,
             meaning

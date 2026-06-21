@@ -1,5 +1,6 @@
 import { Db, ObjectId, Collection } from 'mongodb';
 import { WordInputDTO, WordResponseDTO, WordMongoDocument } from './word.dto';
+import { Word } from '../ai/ai.service';
 
 export class WordRepository {
     private collection: Collection;
@@ -48,5 +49,19 @@ export class WordRepository {
             pronunciation: doc.pronunciation,
             example: doc.example
         };
+    }
+
+    async getByWord(word: string): Promise<Word | null> {
+        const doc = await this.collection.findOne({
+            word: word
+        })
+        
+        if(!doc) return doc
+
+        return {
+            wordId: doc._id.toString(),
+            word: doc.word,
+            meaning: doc.meaning
+        }
     }
 }

@@ -2,12 +2,16 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from pymongo import MongoClient
 import numpy as np
+from dotenv import load_dotenv
+import os
 
 from models.embed import Embed
 
 
-MONGO_URI = "mongodb://localhost:27017"
-DB_NAME = "vocabulary-app"
+MONGO_URI = os.getenv("MONGO_URI") or "mongodb://localhost:27017"
+DB_NAME = "tdtt"
+
+print(MONGO_URI)
 
 try:
     mongo_client = MongoClient(MONGO_URI)
@@ -43,6 +47,8 @@ async def search_topic(req: SearchRequest):
 
         if not words_data:
             return {"top_results": []}
+
+        print()
 
         results = []
 

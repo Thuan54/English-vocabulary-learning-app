@@ -11,8 +11,8 @@ export interface WordResponseDTO {
     wordId: string;
     word: string;
     meaning: string;
-    pronunciation: string;
-    example: string;
+    pronunciation?: string;
+    example?: string;
 }
 
 // MongoDB document representation
